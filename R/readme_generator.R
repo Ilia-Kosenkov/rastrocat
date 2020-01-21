@@ -7,7 +7,8 @@ ReadMeGen <- R6::R6Class(
         .authors = NULL,
         .year = NA_integer_,
         .standard_width = function() 80L,
-        .max_cat_id_len = function() 10L
+        .max_cat_id_len = function() 10L,
+        .description_offset = function() 4L
     ),
     public = list(
         initialize = function(cat_id, title, authors, year) {
@@ -64,6 +65,65 @@ ReadMeGen <- R6::R6Class(
         result <- paste0(result, "+")
 
     return(result)
+}
+
+.wrap_string <- function(str) {
+    fixed_size <- private$.standard_width() - private$.description_offset()
+    n <- nchar(str) %/% fixed_size
+
+    if (n == 0L)
+        return(str)
+
+    output <- vec_init(character(), n + 2L) # extra_space
+
+    id <- 1L
+    offset <- 1L
+
+    while (TRUE) {
+        dup_size <- ifelse(id == 1L, 0L, private$.description_offset())
+        sz <- fixed_size + private$.description_offset() - dup_size
+
+        temp <- str_trim(str_sub(str, offset, offset + sz), "left")
+        len <- nchar(temp)
+
+
+        if (nchar(str) <= offset + sz) {
+            output[id] <- str_dup(" ", dup_size) %&% str_trim(temp, "right")
+            id <- id + 1L
+            offset <- offset + len
+            break
+        }
+        else if (str_ends(temp, "[\\s\\.!?\\-]")) {
+            output[id] <- str_dup(" ", dup_size) %&% str_trim(temp, "right")
+            id <- id + 1L
+            offset <- offset + len
+        }
+        else {
+            pos <- as.vector(str_locate_all(temp, "[\\s\\.!?\\-]")[[1]])
+            pos <- pos[vec_size(pos) %/% 2L]
+            if (pos < 0.8 * len) {
+                output[id] <- str_dup(" ", dup_size) %&% str_trim(temp, "right")
+                id <- id + 1L
+                offset <- offset + len
+            }
+            else {
+                output[id] <- str_dup(" ", dup_size) %&% str_trim(str_sub(temp, 1L, pos), "right")
+                id <- id + 1L
+                offset <- offset + pos
+            }
+        }
+
+        if (offset > str)
+            break
+
+        if (id > vec_size(output)) {
+            new_buff <- vec_init(character(), 2L * id)
+            new_buff[1:vec_size(output)] <- output
+            output <- new_buff
+        }
+    }
+
+    return (discard(output, is.na))
 }
 
 .generate_readme <- function() {
