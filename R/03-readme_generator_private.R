@@ -124,6 +124,12 @@
     if (!is_na(p_$.references)) {
         assign_inc(output, id, paste(glue_fmt("{str_dup(' ', p_$.description_offset())}<{p_$.references}>"), collapse = "\n"))
     }
+    if (!is_na(p_$.bibcode_references)) {
+        assign_inc(output, id,
+            paste(
+                glue_fmt("{str_dup(' ', p_$.description_offset())}{p_$.bibcode_references}"),
+                collapse = "\n"))
+    }
     assign_inc(output, id, p_$.generate_line("="))
 
     if (!is_na(p_$.abstract)) {
@@ -158,8 +164,8 @@
 }
 
 .set_bibcode_references <- function(...) {
-    refs <- map_chr(flatten_chr(list2(...)), str_trim)
-    n <- private$.standard_width() - private$.description_offset() - 1L
+    refs <- map_if(map_chr(flatten_chr(list2(...)), str_trim), ~!str_starts(.x, "="), ~paste0("=", .x))
+    n <- private$.standard_width() - private$.description_offset()
     too_large <- keep(refs, ~ nchar(.x) > n)
     if (!vec_is_empty(too_large))
         abort(
