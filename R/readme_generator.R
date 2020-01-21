@@ -128,8 +128,8 @@ ReadMeGen <- R6::R6Class(
     return(discard(output, is.na))
 }
 
-.wrap_join <- function(str, by = "\n") {
-    paste(private$.wrap_string(str), collapse = by)
+.wrap_join <- function(str, by = "\n", pad_with = "") {
+    pad_with %&% paste(private$.wrap_string(str), collapse = by)
 }
 
 .generate_readme <- function() {
@@ -151,12 +151,16 @@ ReadMeGen <- R6::R6Class(
     output[id <- id + 1L] <- p_$.generate_line("=")
     output[id <- id + 1L] <- p_$.wrap_join(p_$.full_title)
     output[id <- id + 1L] <- p_$.pad_str(p_$.wrap_join(authors))
+    # Bibliography here
+
+    output[id <- id + 1L] <- p_$.generate_line("=")
+
 
     id <- id + 1L
 
     if (!is_null(p_$.description)) {
         output[id <- id + 1L] <- p_$.wrap_join("Description:")
-        output[id <- id + 1L] <- p_$.wrap_join(p_$.description)
+        output[id <- id + 1L] <- p_$.wrap_join(p_$.description, pad_with = str_dup(" ", p_$.description_offset()))
     }
 
 
@@ -174,6 +178,14 @@ ReadMeGen$set("private", ".generate_line", .generate_line)
 ReadMeGen$set("private", ".validate", .validate)
 ReadMeGen$set("private", ".get_short_author", .get_short_author)
 ReadMeGen$set("private", ".pad_str", .pad_str)
+
+ReadMeGen$set("active", "Description", function(value) {
+    if (is_missing(value))
+        return(private$.description)
+    vec_assert(value, character(), 1L)
+    private$.description <- value
+    self
+})
 
 
 ReadMeGen$set("public", "generate_readme", .generate_readme)
