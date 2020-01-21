@@ -6,6 +6,8 @@ ReadMeGen <- R6::R6Class(
         .cat_id = NULL,
         .authors = NULL,
         .year = NA_integer_,
+        .description = NULL,
+
         .standard_width = function() 80L,
         .max_cat_id_len = function() 10L,
         .description_offset = function() 4L
@@ -123,27 +125,55 @@ ReadMeGen <- R6::R6Class(
         }
     }
 
-    return (discard(output, is.na))
+    return(discard(output, is.na))
+}
+
+.wrap_join <- function(str, by = "\n") {
+    paste(private$.wrap_string(str), collapse = by)
 }
 
 .generate_readme <- function() {
-    if (!private$.validate())
+    p_ <- private
+    if (!p_$.validate())
         abort("The descriptor object is not valid", "rastrocat_descriptor_invalid")
 
     output <- vec_init(character(), 10L)
 
-    auth_year_str <- glue_fmt("({private$.get_short_author()} {private$.year:%4d})")
-    title_len <- private$.standard_width() - nchar(private$.cat_id) - nchar(auth_year_str) - 2L
-    title <- glue_fmt(glue_fmt("{{private$.cat_id}} {{private$.title:%{title_len}s}} {{auth_year_str}}"))
+    auth_year_str <- glue_fmt("({p_$.get_short_author()} {p_$.year:%4d})")
+    title_len <- p_$.standard_width() - nchar(p_$.cat_id) - nchar(auth_year_str) - 2L
+    title <- glue_fmt(glue_fmt("{{p_$.cat_id}} {{p_$.title:%{title_len}s}} {{auth_year_str}}"))
 
-    output[1] <- title
-    output[2] <- private$.generate_line("=")
+    authors <- paste(p_$.authors, collapse = ", ")
+
+    id <- 0L
+
+    output[id <- id + 1L] <- title
+    output[id <- id + 1L] <- p_$.generate_line("=")
+    output[id <- id + 1L] <- p_$.wrap_join(p_$.full_title)
+    output[id <- id + 1L] <- p_$.pad_str(p_$.wrap_join(authors))
+
+    id <- id + 1L
+
+    if (!is_null(p_$.description)) {
+        output[id <- id + 1L] <- p_$.wrap_join("Description:")
+        output[id <- id + 1L] <- p_$.wrap_join(p_$.description)
+    }
+
+
 
     paste(output, collapse = "\n")
 }
 
+.pad_str <- function(str, symb = " ", size = private$.description_offset()) {
+    str_dup(symb, size) %&% str
+}
+
+ReadMeGen$set("private", ".wrap_string", .wrap_string)
+ReadMeGen$set("private", ".wrap_join", .wrap_join)
 ReadMeGen$set("private", ".generate_line", .generate_line)
 ReadMeGen$set("private", ".validate", .validate)
 ReadMeGen$set("private", ".get_short_author", .get_short_author)
+ReadMeGen$set("private", ".pad_str", .pad_str)
+
 
 ReadMeGen$set("public", "generate_readme", .generate_readme)
