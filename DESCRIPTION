@@ -16,5 +16,6 @@ RoxygenNote: 7.0.2
 Depends:
 	rlang,
 	vctrs,
-	RLibs,
+	stringr,
+	glue,
 	readr

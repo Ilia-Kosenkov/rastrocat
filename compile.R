@@ -1,8 +1,10 @@
 if (interactive()) {
     library(rlang)
     library(vctrs)
-    library(RLibs)
+    library(glue)
     library(stringr)
+    library(readr)
+    library(magrittr)
     # Library imports for debug go here
     #
     #if (!exists("compile_src"))

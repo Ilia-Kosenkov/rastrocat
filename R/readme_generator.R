@@ -4,21 +4,21 @@ ReadMeGen <- R6::R6Class(
         .title = NULL,
         .full_title = NULL,
         .cat_id = NULL,
-        .auth_cre = NULL,
+        .authors = NULL,
         .year = NA_integer_,
         .standard_width = function() 80L,
         .max_cat_id_len = function() 10L
     ),
     public = list(
-        initialize = function(cat_id, title, auth_cre, year) {
+        initialize = function(cat_id, title, authors, year) {
             vec_assert(cat_id, character(), 1L)
             vec_assert(title, character(), 1L)
-            vec_assert(auth_cre, character(), 1L)
+            vec_assert(authors, character())
             vec_assert(year, integer(), 1L)
 
             private$.cat_id <- str_trim(cat_id)
             private$.title <- str_trim(title)
-            private$.auth_cre <- str_trim(auth_cre)
+            private$.authors <- str_trim(authors)
             private$.year <- year
 
             private$.full_title <- private$.title
@@ -39,25 +39,51 @@ ReadMeGen <- R6::R6Class(
         warn(glue_fmt("`cat_id` = { private$.cat_id} is longer than {private$.max_cat_id_len()} symbols."),
             "rastrocat_parameter_suspicious")
 
+    auth_short <- private$.get_short_author()
+
     if (nchar(private$.cat_id) +
         nchar(private$.title) +
-        nchar(private$.auth_cre) +
+        nchar(auth_short) +
         4L + # Year space
         2L + # Parentheses around authorname
         3L > private$.standard_width()) # Spaces between components
-        abort(glue_fmt("`cat_id`, `title`, `auth_cre` and `year` occupy more than maximum of " %&%
+        abort(glue_fmt("`cat_id`, `title`, `authors` and `year` occupy more than maximum of " %&%
                 "{private$.standard_width()} allowed symbols in the header."),
             "rastrocat_parameter_invalid")
 
     return(TRUE)
 }
 
-.generate_readme <- function() {
-    if (!private$validate())
-        abort("The descriptor object is not valid", "rastrocat_descriptor_invalid")
-
-
+.generate_line <- function(symbol, size = private$.standard_width()) {
+    str_dup(symbol, size)
 }
 
-ReadMeGen$set("private", "validate", .validate)
+.get_short_author <- function() {
+    result <- str_extract(private$.authors[1], "^[\\w\\.\\-']+(?=(\\s|$))")
+    if (vec_size(private$.authors) > 1L)
+        result <- paste0(result, "+")
+
+    return(result)
+}
+
+.generate_readme <- function() {
+    if (!private$.validate())
+        abort("The descriptor object is not valid", "rastrocat_descriptor_invalid")
+
+    output <- vec_init(character(), 10L)
+
+    auth_year_str <- glue_fmt("({private$.get_short_author()} {private$.year:%4d})")
+    title_len <- private$.standard_width() - nchar(private$.cat_id) - nchar(auth_year_str) - 2L
+    title <- glue_fmt(glue_fmt("{{private$.cat_id}} {{private$.title:%{title_len}s}} {{auth_year_str}}"))
+
+    output[1] <- title
+    output[2] <- private$.generate_line("=")
+
+    paste(output, collapse = "\n")
+}
+
+ReadMeGen$set("private", ".generate_line", .generate_line)
+ReadMeGen$set("private", ".validate", .validate)
+ReadMeGen$set("private", ".get_short_author", .get_short_author)
+
 ReadMeGen$set("public", "generate_readme", .generate_readme)
