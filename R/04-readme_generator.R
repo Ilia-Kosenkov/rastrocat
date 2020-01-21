@@ -1,13 +1,14 @@
 ReadMeGen <- R6::R6Class(
     "ReadMeGen",
     private = list(
-        .title = NULL,
-        .full_title = NULL,
-        .cat_id = NULL,
-        .authors = NULL,
+        .title = NA_character_,
+        .full_title = NA_character_,
+        .cat_id = NA_character_,
+        .authors = NA_character_,
         .year = NA_integer_,
-        .description = NULL,
-        .abstract = NULL,
+        .description = NA_character_,
+        .abstract = NA_character_,
+        .references = NA_character_,
         .standard_width = function() 80L,
         .max_cat_id_len = function() 10L,
         .description_offset = function() 4L
@@ -55,9 +56,4 @@ ReadMeGen$set("active", "Abstract", function(value) {
 
 
 ReadMeGen$set("public", "generate_readme", .generate_readme)
-
-
-ReadMeGen$new("123", "my_proj", vec_c("Tucholke H.-J.", "de Boer K.S.", "Seitter W.C.", "Tucholke H.-J.", "de Boer K.S.", "Seitter W.C."), 2020L) -> tmp
-tmp$Description <- desc
-tmp$Abstract <- desc
-tmp$generate_readme() %>% cat
+ReadMeGen$set("public", "set_references", .set_references)

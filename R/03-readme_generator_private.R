@@ -121,16 +121,18 @@
     assign_inc(output, id, p_$.generate_line("="))
     assign_inc(output, id, p_$.wrap_join(p_$.full_title))
     assign_inc(output, id, p_$.pad_str(p_$.wrap_join(authors)))
-    # Bibliography here
+    if (!is_na(p_$.references)) {
+        assign_inc(output, id, paste(glue_fmt("{str_dup(' ', p_$.description_offset())}<{str_trim(p_$.references)}>"), collapse = "\n"))
+    }
     assign_inc(output, id, p_$.generate_line("="))
 
-    if (!is_null(p_$.abstract)) {
+    if (!is_na(p_$.abstract)) {
         id <- id + 1L
         assign_inc(output, id, p_$.wrap_join("Abstract:"))
         assign_inc(output, id, p_$.wrap_join(p_$.abstract, pad_with = str_dup(" ", p_$.description_offset())))
     }
 
-    if (!is_null(p_$.description)) {
+    if (!is_na(p_$.description)) {
         id <- id + 1L
         assign_inc(output, id, p_$.wrap_join("Description:"))
         assign_inc(output, id, p_$.wrap_join(p_$.description, pad_with = str_dup(" ", p_$.description_offset())))
@@ -141,4 +143,9 @@
 
 .pad_str <- function(str, symb = " ", size = private$.description_offset()) {
     str_dup(symb, size) %&% str
+}
+
+.set_references <- function(...) {
+    refs <- flatten_chr(list2(...))
+    private$.references <- refs
 }
