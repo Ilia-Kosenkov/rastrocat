@@ -145,25 +145,22 @@ ReadMeGen <- R6::R6Class(
 
     authors <- paste(p_$.authors, collapse = ", ")
 
-    id <- 0L
+    id <- 1L
 
-    output[id <- id + 1L] <- title
-    output[id <- id + 1L] <- p_$.generate_line("=")
-    output[id <- id + 1L] <- p_$.wrap_join(p_$.full_title)
-    output[id <- id + 1L] <- p_$.pad_str(p_$.wrap_join(authors))
+    assign_inc(output, id, title)
+    assign_inc(output, id, p_$.generate_line("="))
+    assign_inc(output, id, p_$.wrap_join(p_$.full_title))
+    assign_inc(output, id, p_$.pad_str(p_$.wrap_join(authors)))
     # Bibliography here
-
-    output[id <- id + 1L] <- p_$.generate_line("=")
+    assign_inc(output, id, p_$.generate_line("="))
 
 
     id <- id + 1L
 
     if (!is_null(p_$.description)) {
-        output[id <- id + 1L] <- p_$.wrap_join("Description:")
-        output[id <- id + 1L] <- p_$.wrap_join(p_$.description, pad_with = str_dup(" ", p_$.description_offset()))
+        assign_inc(output, id, p_$.wrap_join("Description:"))
+        assign_inc(output, id, p_$.wrap_join(p_$.description, pad_with = str_dup(" ", p_$.description_offset())))
     }
-
-
 
     paste(output, collapse = "\n")
 }
