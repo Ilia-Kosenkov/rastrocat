@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1000
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{DA7A21FA-8162-4350-AD77-A8D1B671F3ED}") = "rastrocat", "rastrocat.rxproj", "{BCB70531-41CA-4047-A1AA-22EFAE71CE3B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BCB70531-41CA-4047-A1AA-22EFAE71CE3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCB70531-41CA-4047-A1AA-22EFAE71CE3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCB70531-41CA-4047-A1AA-22EFAE71CE3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCB70531-41CA-4047-A1AA-22EFAE71CE3B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6294E727-9A9B-4D63-B9D8-086A0C3D72E6}
+	EndGlobalSection
+EndGlobal
