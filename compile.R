@@ -5,6 +5,7 @@ if (interactive()) {
     library(stringr)
     library(readr)
     library(magrittr)
+    library(purrr)
     # Library imports for debug go here
     #
     #if (!exists("compile_src"))
