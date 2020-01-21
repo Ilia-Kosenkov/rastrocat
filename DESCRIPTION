@@ -1,13 +1,15 @@
 Package: rastrocat
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: R Astro Cat
+Version: 0.0.1
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Ilia",
+           family = "Kosenkov",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
+           email = "ilia.kosenkov.at.gm@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+Description: Generates ReadMe files for Standard Astronomical Catalogues
+License: MIT
 Encoding: UTF-8
 LazyData: true
+ByteCompile: true
+RoxygenNote: 7.0.2
