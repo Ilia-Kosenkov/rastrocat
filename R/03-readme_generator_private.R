@@ -132,6 +132,16 @@
     }
     assign_inc(output, id, p_$.generate_line("="))
 
+    if (!is_na(p_$.keywords)) {
+        assign_inc(output, id,
+            p_$.wrap_join(glue_fmt("Keywords: {paste(p_$.keywords, collapse = ' ; ')}")))
+    }
+
+    if (!is_na(p_$.adc_keywords)) {
+        assign_inc(output, id,
+            p_$.wrap_join(glue_fmt("ADC_Keywords: {paste(p_$.adc_keywords, collapse = ' ; ')}")))
+    }
+
     if (!is_na(p_$.abstract)) {
         id <- id + 1L
         assign_inc(output, id, p_$.wrap_join("Abstract:"))
@@ -152,7 +162,7 @@
 }
 
 .set_references <- function(...) {
-    refs <- map_chr(flatten_chr(list2(...)), str_trim)
+    refs <- str_trim(flatten_chr(list2(...)))
     n <- private$.standard_width() - private$.description_offset() - 2L
     too_large <- keep(refs, ~ nchar(.x) > n)
     if (!vec_is_empty(too_large))
@@ -164,7 +174,7 @@
 }
 
 .set_bibcode_references <- function(...) {
-    refs <- map_if(map_chr(flatten_chr(list2(...)), str_trim), ~!str_starts(.x, "="), ~paste0("=", .x))
+    refs <- map_if(str_trim(flatten_chr(list2(...))), ~!str_starts(.x, "="), ~paste0("=", .x))
     n <- private$.standard_width() - private$.description_offset()
     too_large <- keep(refs, ~ nchar(.x) > n)
     if (!vec_is_empty(too_large))
@@ -173,4 +183,14 @@
                 "are too large and exceed the maximum allowed size of {n}."),
             "rastrocat_parameter_invalid")
     private$.bibcode_references <- refs
+}
+
+.set_keywords <- function(...) {
+    keys <- str_trim(flatten_chr(list2(...)))
+    private$.keywords <- keys
+}
+
+.set_adc_keywords <- function(...) {
+    keys <- str_trim(flatten_chr(list2(...)))
+    private$.adc_keywords <- keys
 }
