@@ -122,7 +122,7 @@
     assign_inc(output, id, p_$.wrap_join(p_$.full_title))
     assign_inc(output, id, p_$.pad_str(p_$.wrap_join(authors)))
     if (!is_na(p_$.references)) {
-        assign_inc(output, id, paste(glue_fmt("{str_dup(' ', p_$.description_offset())}<{str_trim(p_$.references)}>"), collapse = "\n"))
+        assign_inc(output, id, paste(glue_fmt("{str_dup(' ', p_$.description_offset())}<{p_$.references}>"), collapse = "\n"))
     }
     assign_inc(output, id, p_$.generate_line("="))
 
@@ -146,6 +146,25 @@
 }
 
 .set_references <- function(...) {
-    refs <- flatten_chr(list2(...))
+    refs <- map_chr(flatten_chr(list2(...)), str_trim)
+    n <- private$.standard_width() - private$.description_offset() - 2L
+    too_large <- keep(refs, ~ nchar(.x) > n)
+    if (!vec_is_empty(too_large))
+        abort(
+            glue_fmt("The following references\n{'\t > ' %&% paste(too_large, collapse = '\n')}\n" %&%
+                "are too large and exceed the maximum allowed size of {n}."),
+            "rastrocat_parameter_invalid")
     private$.references <- refs
+}
+
+.set_bibcode_references <- function(...) {
+    refs <- map_chr(flatten_chr(list2(...)), str_trim)
+    n <- private$.standard_width() - private$.description_offset() - 1L
+    too_large <- keep(refs, ~ nchar(.x) > n)
+    if (!vec_is_empty(too_large))
+        abort(
+            glue_fmt("The following references\n{'\t > ' %&% paste(too_large, collapse = '\n')}\n" %&%
+                "are too large and exceed the maximum allowed size of {n}."),
+            "rastrocat_parameter_invalid")
+    private$.bibcode_references <- refs
 }

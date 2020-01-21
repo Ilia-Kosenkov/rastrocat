@@ -9,6 +9,7 @@ ReadMeGen <- R6::R6Class(
         .description = NA_character_,
         .abstract = NA_character_,
         .references = NA_character_,
+        .bibcode_references = NA_character_,
         .standard_width = function() 80L,
         .max_cat_id_len = function() 10L,
         .description_offset = function() 4L
@@ -57,3 +58,4 @@ ReadMeGen$set("active", "Abstract", function(value) {
 
 ReadMeGen$set("public", "generate_readme", .generate_readme)
 ReadMeGen$set("public", "set_references", .set_references)
+ReadMeGen$set("public", "set_bibcode_references", .set_bibcode_references)

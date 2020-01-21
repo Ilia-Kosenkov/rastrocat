@@ -263,3 +263,4 @@ __pycache__/
 **/*Rhistory
 **/*Rcheck/*
 **/*tar.gz
+R/debug.R
