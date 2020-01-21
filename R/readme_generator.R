@@ -7,7 +7,7 @@ ReadMeGen <- R6::R6Class(
         .authors = NULL,
         .year = NA_integer_,
         .description = NULL,
-
+        .abstract = NULL,
         .standard_width = function() 80L,
         .max_cat_id_len = function() 10L,
         .description_offset = function() 4L
@@ -154,10 +154,14 @@ ReadMeGen <- R6::R6Class(
     # Bibliography here
     assign_inc(output, id, p_$.generate_line("="))
 
-
-    id <- id + 1L
+    if (!is_null(p_$.abstract)) {
+        id <- id + 1L
+        assign_inc(output, id, p_$.wrap_join("Abstract:"))
+        assign_inc(output, id, p_$.wrap_join(p_$.abstract, pad_with = str_dup(" ", p_$.description_offset())))
+    }
 
     if (!is_null(p_$.description)) {
+        id <- id + 1L
         assign_inc(output, id, p_$.wrap_join("Description:"))
         assign_inc(output, id, p_$.wrap_join(p_$.description, pad_with = str_dup(" ", p_$.description_offset())))
     }
@@ -184,5 +188,19 @@ ReadMeGen$set("active", "Description", function(value) {
     self
 })
 
+ReadMeGen$set("active", "Abstract", function(value) {
+    if (is_missing(value))
+        return(private$.abstract)
+    vec_assert(value, character(), 1L)
+    private$.abstract <- value
+    self
+})
+
 
 ReadMeGen$set("public", "generate_readme", .generate_readme)
+
+
+ReadMeGen$new("123", "my_proj", vec_c("Tucholke H.-J.", "de Boer K.S.", "Seitter W.C.", "Tucholke H.-J.", "de Boer K.S.", "Seitter W.C."), 2020L) -> tmp
+tmp$Description <- desc
+tmp$Abstract <- desc
+tmp$generate_readme() %>% cat
