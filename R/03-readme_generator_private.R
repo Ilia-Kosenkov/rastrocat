@@ -201,3 +201,16 @@
     keys <- str_trim(flatten_chr(list2(...)))
     private$.adc_keywords <- keys
 }
+
+.assign_data <- function(format, data = NULL) {
+    assert(is.data.frame(format), "`format` should be a `data.frame`-compatible type.")
+    assert(vec_size(format) >= 1L, "`format` should have at least one row.")
+
+    if (!is_null(data)) {
+        assert(is.data.frame(data), "`data` should be a `data.frame`-compatible type.")
+        assert(ncol(data) >= vec_size(format), "`data` should contain a column for each `format` entry.")
+        private$.data <- as_tibble(data)
+    }
+
+    private$.format <- as_tibble(format)
+}

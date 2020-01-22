@@ -1,3 +1,6 @@
+cc <- vec_c
+`%vin%` <- vec_in
+
 assign_inc <- function(what, at, value) {
     q_what <- enquo(what)
     q_at <- enquo(at)
@@ -26,11 +29,11 @@ assert <- function(expr, err_msg = NULL) {
     if (!expr) {
         if (vec_is(err_msg, character(), 1L) && !vec_is_empty(err_msg))
             abort(
-                glue_fmt("Assertion `{expr_text(ex)}` failed: \"{err_msg}\"."),
-                "rastrocat_assertion_failed")
+                glue_fmt("Assertion `{expr_text(ex)}` failed:\n>\t{err_msg}."),
+                cc("rastrocat_error_assert", "rastrocat_invalid_arg"))
         else
             abort(
                 glue_fmt("Assertion `{expr_text(ex)}` failed."),
-                "rastrocat_assertion_failed")
+                cc("rastrocat_error_assert", "rastrocat_invalid_arg"))
     }
 }
