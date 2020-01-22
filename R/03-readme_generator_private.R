@@ -330,10 +330,20 @@
     if (!("Units" %vin% names2(frmt)))
         frmt <- mutate(frmt, Units = "---")
 
-    unit_size <- max(nchar(frmt$Units))
-    label_size <- max(nchar(frmt$Label))
+    if (!("Explanation" %vin% names2(frmt)))
+        frmt <- mutate(frmt, Explanation = "?")
 
-    frmt %>%
+    frmt <- mutate(frmt,
+        Units = replace_na(Units, "---"),
+        Explanation = replace_na(Explanation, "?"))
+
+    units_size <- max(nchar(frmt$Units))
+    label_size <- max(nchar(frmt$Label))
+    format_size <- 6L
+
+    expl_offset <- bytes_size + label_size + units_size + format_size + 5L * 2L
+
+    frmt <- frmt %>%
         mutate(
             Bytes = cumsum(replace_na(lag(Size + 2L), 3L)),
             Bytes2 = Bytes + Size - 1L,
@@ -342,4 +352,21 @@
                 glue_fmt_chr(glue_fmt("{{Bytes:%{bytes_size}d}}")),
                 glue_fmt_chr(glue_fmt("{{Bytes:%{len_size}d}}-{{Bytes2:%{len_size}d}}"))),
             Bytes2 = NULL)
+
+
+    func <- (~p_$.wrap_join(.x, pad_offset = expl_offset, pad_first = FALSE)) %>>%
+                (~str_trim(.x, "left"))
+
+    row_format <- glue_fmt(
+        "  {{Bytes:%{bytes_size}s}}" %&%
+        "  {{SprintfFormat:%{format_size}s}}" %&%
+        "  {{Units:%{units_size}s}}" %&%
+        "  {{Label:%{label_size}s}}" %&%
+        "  {{Explanation:%-{p_$.standard_width() - expl_offset}s}}")
+
+    frmt %>%
+        mutate(
+            Explanation = map_chr(Explanation, func),
+            Result = glue_fmt_chr(row_format)) %>%
+        pull(Result)
 }
