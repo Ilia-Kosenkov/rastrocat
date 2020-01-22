@@ -1,29 +1,47 @@
 .validate <- function() {
+    p_ <- private
+
     current_year <- parse_integer(substr(Sys.Date(), 1L, 4L))
-    if (is_na(private$.year) || private$.year < (current_year - 100L) || private$.year > (current_year + 2L))
-        abort(glue_fmt("`year`= {private$.year:%4d} seems to be out of range. Verify if it is correct"),
+    if (is_na(p_$.year) || p_$.year < (current_year - 100L) || p_$.year > (current_year + 2L))
+        abort(glue_fmt("`year`= {p_$.year:%4d} seems to be out of range. Verify if it is correct"),
             "rastrocat_parameter_invalid")
 
-    if (private$.year > current_year)
-        warn(glue_fmt("`year` = { private$.year:%4d} is set in the future (current year is {current_year:%4d}."),
+    if (p_$.year > current_year)
+        warn(glue_fmt("`year` = { p_$.year:%4d} is set in the future (current year is {current_year:%4d}."),
             "rastrocat_parameter_suspicious")
 
-    if (nchar(private$.cat_id) > private$.max_cat_id_len())
-        warn(glue_fmt("`cat_id` = { private$.cat_id} is longer than {private$.max_cat_id_len()} symbols."),
+    if (nchar(p_$.cat_id) > p_$.max_cat_id_len())
+        warn(glue_fmt("`cat_id` = { p_$.cat_id} is longer than {p_$.max_cat_id_len()} symbols."),
             "rastrocat_parameter_suspicious")
 
-    auth_short <- private$.get_short_author()
+    auth_short <- p_$.get_short_author()
 
-    if (nchar(private$.cat_id) +
-        nchar(private$.title) +
+    if (nchar(p_$.cat_id) +
+        nchar(p_$.title) +
             nchar(auth_short) +
                 4L + # Year space
                 2L + # Parentheses around authorname
-                3L > private$.standard_width()) # Spaces between components
+                3L > p_$.standard_width()) # Spaces between components
         abort(glue_fmt("`cat_id`, `title`, `authors` and `year` occupy more than maximum of " %&%
-                "{private$.standard_width()} allowed symbols in the header."),
+                "{p_$.standard_width()} allowed symbols in the header."),
             "rastrocat_parameter_invalid")
 
+    if (is_null(p_$.format))
+        warn("`format` is missing; it is required to build correct descriptior.",
+            "rastrocat_parameter_suspicious")
+    else {
+        if (!(cc("Format", "Label") %vin% names(p_$.format)))
+            abort("`format` does not have required `Format` and `Label` columns.",
+                "rastrocat_parameter_invalid")
+
+
+
+        if (!is_null(p_$.data) && !(p_$.format$Label %vin% names(p_$.data))) {
+            df <- paste(setdiff(p_$.format$Label, names(p_$.data)), collapse = ", ")
+            abort(glue_fmt("`data` does not have the following columns described in `format`:\n>\t{df}."),
+                "rastrocat_parameter_invalid")
+        }
+    }
     return(TRUE)
 }
 
@@ -178,6 +196,7 @@
                 "are too large and exceed the maximum allowed size of {n}."),
             "rastrocat_parameter_invalid")
     private$.references <- refs
+    self
 }
 
 .set_bibcode_references <- function(...) {
@@ -190,16 +209,19 @@
                 "are too large and exceed the maximum allowed size of {n}."),
             "rastrocat_parameter_invalid")
     private$.bibcode_references <- refs
+    self
 }
 
 .set_keywords <- function(...) {
     keys <- str_trim(flatten_chr(list2(...)))
     private$.keywords <- keys
+    self
 }
 
 .set_adc_keywords <- function(...) {
     keys <- str_trim(flatten_chr(list2(...)))
     private$.adc_keywords <- keys
+    self
 }
 
 .assign_data <- function(format, data = NULL) {
@@ -213,4 +235,5 @@
     }
 
     private$.format <- as_tibble(format)
+    self
 }
