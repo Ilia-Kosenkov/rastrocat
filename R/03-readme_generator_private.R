@@ -194,6 +194,21 @@
         assign_inc(output, id, p_$.wrap_join(p_$.description, pad_with = str_dup(" ", p_$.description_offset())))
     }
 
+    id <- id + 1L # Space
+
+    assign_inc(output, id, "File Summary:")
+    assign_inc(output, id, p_$.generate_line("-"))
+
+    data_list <- p_$.generate_data_list()
+    assign_inc(output, id, data_list$Header)
+    assign_inc(output, id, p_$.generate_line("-"))
+
+    for (item in data_list$Body)
+        assign_inc(output, id, item)
+    assign_inc(output, id, p_$.generate_line("-"))
+
+    id <- id + 2L # Two spaces
+
     paste(output, collapse = "\n")
 }
 
@@ -275,7 +290,7 @@
 
     max_fname_sz <- max(nchar(tmp$FileName))
     int_sz <- cc(6L, 8L)
-    func <- (~p_$.wrap_join(.x, pad_offset = max_fname_sz + sum(int_sz) + 3L, pad_first = FALSE)) %>>%
+    func <- (~p_$.wrap_join(.x, pad_offset = max_fname_sz + sum(int_sz) + 6L, pad_first = FALSE)) %>>%
                 (~str_trim(.x, "left"))
 
 
@@ -283,9 +298,9 @@
 
     frmt <- glue_fmt(
         "{{FileName:%-{max_fname_sz}s}}" %&%
-        " {{as.character(Lrecl):%{int_sz[1]}s}}" %&%
-        " {{if_else(is.na(Records), '.', as.character(Records)):%{int_sz[2]}s}}" %&%
-        " {{Explanation:%-{p_$.standard_width() - max_fname_sz - sum(int_sz) - 3L}s}}")
+        "  {{as.character(Lrecl):%{int_sz[1]}s}}" %&%
+        "  {{if_else(is.na(Records), '.', as.character(Records)):%{int_sz[2]}s}}" %&%
+        "  {{Explanation:%-{p_$.standard_width() - max_fname_sz - sum(int_sz) - 6L}s}}")
 
     tmp %>%
         mutate(Str = glue_fmt_chr(frmt)) %>%
@@ -294,9 +309,9 @@
     list(
         Header = glue_fmt_chr(glue_fmt(
             " {{'FileName':%-{max_fname_sz}s}}" %&%
-            " {{'Lrecl':%{int_sz[1]}s}}" %&%
-            " {{'Records':%{int_sz[1]}s}}" %&%
-            " {{'Explanation':%-{p_$.standard_width() - max_fname_sz - sum(int_sz) - 3L}s}}"
+            "  {{'Lrecl':%{int_sz[1]}s}}" %&%
+            "  {{'Records':%{int_sz[1]}s}}" %&%
+            "  {{'Explanation':%-{p_$.standard_width() - max_fname_sz - sum(int_sz) - 6L}s}}"
          )),
          Body = output)
 }
