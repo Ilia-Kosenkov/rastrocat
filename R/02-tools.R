@@ -40,5 +40,19 @@ assert <- function(expr, err_msg = NULL) {
 
 validate_formats <- function(input) {
     vec_assert(input, character())
-    str_detect(str_trim(input), regex("^(?:[FE]\\d+\\.\\d+|[AI]\\d+)$", ignore_case = TRUE))
+    all(str_detect(str_trim(input), regex("^(?:[FE]\\d+\\.\\d+|[AI]\\d+)$", ignore_case = TRUE)))
 }
+
+convert_formats <- function(input) {
+    vec_assert(input, character())
+    str_match_all(input, "^([AIFEaife])(\\d+)(?:\\.(\\d+))?$") %>%
+        map_dfr(set_names, cc("Source", "Type", "Size", "Digits")) %>%
+        mutate_at(vars(Size, Digits), parse_integer) %>%
+        mutate(
+            SprintfType = case_when(
+                Type == "A" ~ "s",
+                Type == "I" ~ "d",
+                TRUE ~ tolower(Type)),
+            DigitsStr = if_else(is.na(Digits), "", glue_fmt_chr(".{Digits}")),
+            Format = glue_fmt_chr("%{Size}{DigitsStr}{SprintfType}"))
+}   
