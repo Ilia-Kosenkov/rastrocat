@@ -7,7 +7,7 @@
 #' @importFrom stringr  str_trim str_dup str_sub str_locate_all str_ends regex str_extract
 #' @importFrom purrr    %>% discard flatten_chr map_dfr map walk every compose map_chr
 #' @importFrom tibble   as_tibble
-#' @importFrom dplyr    mutate_at vars pull
+#' @importFrom dplyr    mutate_at vars pull mutate lag
 #' @importFrom tidyr    unpack
 
 NULL

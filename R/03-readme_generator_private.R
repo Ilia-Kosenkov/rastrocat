@@ -275,7 +275,7 @@
     if (is_empty(p_$.data))
         return(NULL)
 
-    max_len <- sum(p_$.format$Size)
+    max_len <- sum(p_$.format$Size + 2L)
 
     p_$.data %>%
         transmute(
@@ -314,4 +314,32 @@
             "  {{'Explanation':%-{p_$.standard_width() - max_fname_sz - sum(int_sz) - 6L}s}}"
          )),
          Body = output)
+}
+
+
+.generate_format_table <- function() {
+    p_ <- private
+    frmt <- p_$.format
+
+    max_len <- sum(frmt$Size + 2L) 
+    len_size <- max(3L, nchar(as.character(max_len)))
+
+    bytes_size <- ifelse(any(frmt$Size > 1L), 2L * len_size + 1L, len_size)
+
+
+    if (!("Units" %vin% names2(frmt)))
+        frmt <- mutate(frmt, Units = "---")
+
+    unit_size <- max(nchar(frmt$Units))
+    label_size <- max(nchar(frmt$Label))
+
+    frmt %>%
+        mutate(
+            Bytes = cumsum(replace_na(lag(Size + 2L), 3L)),
+            Bytes2 = Bytes + Size - 1L,
+            Bytes = if_else(
+                Bytes == Bytes2,
+                glue_fmt_chr(glue_fmt("{{Bytes:%{bytes_size}d}}")),
+                glue_fmt_chr(glue_fmt("{{Bytes:%{len_size}d}}-{{Bytes2:%{len_size}d}}"))),
+            Bytes2 = NULL)
 }
