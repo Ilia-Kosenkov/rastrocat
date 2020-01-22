@@ -58,8 +58,13 @@
     return(result)
 }
 
-.wrap_string <- function(str, wrap_at = "[\\s\\.!?\\-]") {
-    fixed_size <- private$.standard_width() - private$.description_offset()
+.wrap_string <- function(
+        str,
+        wrap_at = "[\\s\\.!?\\-]",
+        width = private$.standard_width(),
+        pad_offset = private$.description_offset(),
+        pad_first = TRUE) {
+    fixed_size <- width - pad_offset - 1L
     n <- nchar(str) %/% fixed_size
 
     if (n == 0L)
@@ -71,12 +76,11 @@
     offset <- 1L
 
     while (TRUE) {
-        dup_size <- ifelse(id == 1L, 0L, private$.description_offset())
-        sz <- fixed_size + private$.description_offset() - dup_size
+        dup_size <- ifelse(pad_first && id == 1L, 0L, pad_offset)
+        sz <- fixed_size + pad_offset - dup_size
 
         temp <- str_trim(str_sub(str, offset, offset + sz), "left")
         len <- nchar(temp)
-
 
         if (nchar(str) <= offset + sz) {
             output[id] <- str_dup(" ", dup_size) %&% str_trim(temp, "right")
@@ -104,7 +108,8 @@
             }
         }
 
-        if (offset > str)
+
+        if (offset > nchar(str))
             break
 
             if (id > vec_size(output)) {
@@ -117,8 +122,17 @@
     return(discard(output, is.na))
 }
 
-.wrap_join <- function(str, by = "\n", pad_with = "", wrap_at = "[\\s\\.!?\\-]") {
-    pad_with %&% paste(private$.wrap_string(str, wrap_at), collapse = by)
+.wrap_join <- function(str, by = "\n", pad_with = "", wrap_at = "[\\s\\.!?\\-]",
+        width = private$.standard_width(),
+        pad_offset = private$.description_offset(),
+        pad_first = TRUE) {
+    pad_with %&%
+        paste(
+            private$.wrap_string(
+                str, wrap_at,
+                width = width, pad_offset = pad_offset,
+                pad_first = pad_first),
+            collapse = by)
 }
 
 .generate_readme <- function() {
@@ -233,9 +247,46 @@
         assert(is.data.frame(data), "`data` should be a `data.frame`-compatible type")
         vec_assert(file_name, character(), 1L)
         vec_assert(desc, character(), 1L)
-        private$.data <- tibble(FileName = file_name, Desciption = desc, Data = list(data))
+        private$.data <- tibble(FileName = file_name, Description = desc, Data = list_of(data))
     }
 
-    private$.format <- as_tibble(format)
+    private$.format <- convert_formats(as_tibble(format))
     self
+}
+
+
+.generate_data_list <- function() {
+    p_ <- private
+    if (is_empty(p_$.data))
+        return(NULL)
+
+    max_len <- sum(p_$.format$Size)
+    
+    p_$.data %>%
+        transmute(
+            FileName,
+            Lrecl = max_len,
+            Records = map_int(Data, vec_size),
+            Explanation = Description) -> tmp
+    bind_rows(
+        tibble(FileName = "ReadMe", Lrecl = p_$.standard_width(), Records = NA_integer_, Explanation = "This file"),
+        tmp) -> tmp
+
+
+    max_fname_sz <- max(nchar(tmp$FileName))
+    int_sz <- 8L
+    func <- (~p_$.wrap_join(.x, pad_offset = max_fname_sz + 2L * int_sz + 3L, pad_first = FALSE)) %>>%
+                (~str_trim(.x, "left"))
+
+
+    tmp <-  mutate(tmp, Explanation = map_chr(Explanation, func))
+
+    frmt <- glue_fmt(
+        "{{FileName:%-{max_fname_sz}s}}" %&%
+        " {{Lrecl:%{int_sz}d}} {{if_else(is.na(Records), '.', as.character(Records)):%{int_sz}s}}" %&% 
+        " {{Explanation:%-{p_$.standard_width() - max_fname_sz - 2L * int_sz - 3L}s}}")
+
+    tmp %>%
+        mutate(Str = glue_fmt_chr(frmt)) %>%
+        pull(Str)
 }

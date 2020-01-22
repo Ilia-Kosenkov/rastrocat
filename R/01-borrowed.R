@@ -1,16 +1,14 @@
 # ADOPTED FROM [glue] package; vignettes
 
 sprintf_transformer <- function(text, envir) {
-    m <- regexpr(":\\ ?%.+$", text)
-    if (m != -1) {
-        format <- substring(regmatches(text, m), 2)
-        regmatches(text, m) <- ""
-        res <- eval(parse(text = text, keep.source = FALSE), envir)
+    str_match(text, "^(.*?)(?::(\\ *%-?.+))?$")[2:3] -> expr
 
-        exec(sprintf, glue("{format}"), !!!res)
-    } else {
-        eval(parse(text = text, keep.source = FALSE), envir)
-    }
+    vals <- eval(parse(text = expr[1], keep.source = FALSE), envir)
+
+    if (!is.na(expr[2]))
+        return(sprintf(expr[2], vals))
+
+    return(vals)
 }
 
 glue_fmt <- function(..., .envir = parent.frame()) {

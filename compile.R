@@ -6,6 +6,8 @@ if (interactive()) {
     library(readr)
     library(magrittr)
     library(purrr)
+    library(tidyr)
+    library(dplyr)
     # Library imports for debug go here
     #
     #if (!exists("compile_src"))

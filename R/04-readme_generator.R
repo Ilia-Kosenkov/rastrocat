@@ -74,3 +74,6 @@ ReadMeGen$set("public", "set_bibcode_references", .set_bibcode_references)
 ReadMeGen$set("public", "set_keywords", .set_keywords)
 ReadMeGen$set("public", "set_adc_keywords", .set_adc_keywords)
 ReadMeGen$set("public", "assign_data", .assign_data)
+
+
+ReadMeGen$set("public", ".generate_data_list", .generate_data_list)

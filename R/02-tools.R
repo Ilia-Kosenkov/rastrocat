@@ -44,9 +44,14 @@ validate_formats <- function(input) {
 }
 
 convert_formats <- function(input) {
-    vec_assert(input, character())
-    str_match_all(input, "^([AIFEaife])(\\d+)(?:\\.(\\d+))?$") %>%
-        map_dfr(set_names, cc("Source", "Type", "Size", "Digits")) %>%
+
+    input %>%
+        mutate(
+            Parsed = map_dfr(
+                str_match_all(Format, "^([AIFEaife])(\\d+)(?:\\.(\\d+))?$"),
+                set_names,
+                cc("Source", "Type", "Size", "Digits"))) %>%
+        unpack(Parsed) %>%
         mutate_at(vars(Size, Digits), parse_integer) %>%
         mutate(
             SprintfType = case_when(
@@ -54,5 +59,8 @@ convert_formats <- function(input) {
                 Type == "I" ~ "d",
                 TRUE ~ tolower(Type)),
             DigitsStr = if_else(is.na(Digits), "", glue_fmt_chr(".{Digits}")),
-            Format = glue_fmt_chr("%{Size}{DigitsStr}{SprintfType}"))
-}   
+            SprintfFormat = glue_fmt_chr("%{Size}{DigitsStr}{SprintfType}"))
+}
+
+`%>>%` <- function(x, y) compose(x, y, .dir = "forward")
+`%<<%` <- function(x, y) compose(x, y)
