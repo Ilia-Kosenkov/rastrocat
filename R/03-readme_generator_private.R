@@ -30,15 +30,16 @@
         warn("`format` is missing; it is required to build correct descriptior.",
             "rastrocat_parameter_suspicious")
     else {
-        if (!(cc("Format", "Label") %vin% names(p_$.format)))
+        if (!every(cc("Format", "Label"), vec_in, names(p_$.format)))
             abort("`format` does not have required `Format` and `Label` columns.",
                 "rastrocat_parameter_invalid")
 
+        if (!validate_formats(p_$.format$Format))
+            abort("`format -> Format` contains unsupported formats.",
+                "rastrocat_parameter_invalid")
 
-
-        if (!is_null(p_$.data) && !(p_$.format$Label %vin% names(p_$.data))) {
-            df <- paste(setdiff(p_$.format$Label, names(p_$.data)), collapse = ", ")
-            abort(glue_fmt("`data` does not have the following columns described in `format`:\n>\t{df}."),
+        if (!is_null(p_$.data) && !every(p_$.data$Data, ~ every(p_$.format$Label, vec_in, names2(.x)))) {
+            abort(glue_fmt("`data` does not have all of the columns described in `format`."),
                 "rastrocat_parameter_invalid")
         }
     }
@@ -224,14 +225,15 @@
     self
 }
 
-.assign_data <- function(format, data = NULL) {
-    assert(is.data.frame(format), "`format` should be a `data.frame`-compatible type.")
-    assert(vec_size(format) >= 1L, "`format` should have at least one row.")
+.assign_data <- function(format, data = NULL, file_name = NULL, desc = NULL) {
+    assert(is.data.frame(format), "`format` should be a `data.frame`-compatible type")
+    assert(vec_size(format) >= 1L, "`format` should have at least one row")
 
     if (!is_null(data)) {
-        assert(is.data.frame(data), "`data` should be a `data.frame`-compatible type.")
-        assert(ncol(data) >= vec_size(format), "`data` should contain a column for each `format` entry.")
-        private$.data <- as_tibble(data)
+        assert(is.data.frame(data), "`data` should be a `data.frame`-compatible type")
+        vec_assert(file_name, character(), 1L)
+        vec_assert(desc, character(), 1L)
+        private$.data <- tibble(FileName = file_name, Desciption = desc, Data = list(data))
     }
 
     private$.format <- as_tibble(format)
