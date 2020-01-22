@@ -63,7 +63,8 @@
         wrap_at = "[\\s\\.!?\\-]",
         width = private$.standard_width(),
         pad_offset = private$.description_offset(),
-        pad_first = TRUE) {
+        pad_first = TRUE,
+        pad_first_offset = 0L) {
     fixed_size <- width - pad_offset - 1L
     n <- nchar(str) %/% fixed_size
 
@@ -76,8 +77,9 @@
     offset <- 1L
 
     while (TRUE) {
-        dup_size <- ifelse(pad_first && id == 1L, 0L, pad_offset)
-        sz <- fixed_size + pad_offset - dup_size
+        dup_size <- ifelse(pad_first && id == 1L, pad_first_offset, pad_offset)
+        #sz <- fixed_size + pad_offset - dup_size
+        sz <- width - 1L - dup_size
 
         temp <- str_trim(str_sub(str, offset, offset + sz), "left")
         len <- nchar(temp)
@@ -125,13 +127,15 @@
 .wrap_join <- function(str, by = "\n", pad_with = "", wrap_at = "[\\s\\.!?\\-]",
         width = private$.standard_width(),
         pad_offset = private$.description_offset(),
-        pad_first = TRUE) {
+        pad_first = TRUE,
+        pad_first_offset = 0L) {
     pad_with %&%
         paste(
             private$.wrap_string(
                 str, wrap_at,
                 width = width, pad_offset = pad_offset,
-                pad_first = pad_first),
+                pad_first = pad_first,
+                pad_first_offset = pad_first_offset),
             collapse = by)
 }
 
@@ -321,7 +325,7 @@
     p_ <- private
     frmt <- p_$.format
 
-    max_len <- sum(frmt$Size + 2L) 
+    max_len <- sum(frmt$Size + 2L)
     len_size <- max(3L, nchar(as.character(max_len)))
 
     bytes_size <- ifelse(any(frmt$Size > 1L), 2L * len_size + 1L, len_size)
@@ -330,15 +334,15 @@
     if (!("Units" %vin% names2(frmt)))
         frmt <- mutate(frmt, Units = "---")
 
-    if (!("Explanation" %vin% names2(frmt)))
-        frmt <- mutate(frmt, Explanation = "?")
+    if (!("Explanations" %vin% names2(frmt)))
+        frmt <- mutate(frmt, Explanations = "?")
 
     frmt <- mutate(frmt,
         Units = replace_na(Units, "---"),
-        Explanation = replace_na(Explanation, "?"))
+        Explanations = replace_na(Explanations, "?"))
 
-    units_size <- max(nchar(frmt$Units))
-    label_size <- max(nchar(frmt$Label))
+    units_size <- max(cc(nchar(frmt$Units), 5L))
+    label_size <- max(cc(nchar(frmt$Label), 5L))
     format_size <- 6L
 
     expl_offset <- bytes_size + label_size + units_size + format_size + 5L * 2L
@@ -354,19 +358,34 @@
             Bytes2 = NULL)
 
 
-    func <- (~p_$.wrap_join(.x, pad_offset = expl_offset, pad_first = FALSE)) %>>%
-                (~str_trim(.x, "left"))
+    func <-
+        (~p_$.wrap_join(
+            .x,
+            pad_offset = expl_offset + p_$.description_offset(),
+            width = 85L,
+            pad_first = TRUE,
+            pad_first_offset = expl_offset)) %>>%
+        (~str_trim(.x, "left"))
 
     row_format <- glue_fmt(
         "  {{Bytes:%{bytes_size}s}}" %&%
-        "  {{SprintfFormat:%{format_size}s}}" %&%
-        "  {{Units:%{units_size}s}}" %&%
-        "  {{Label:%{label_size}s}}" %&%
-        "  {{Explanation:%-{p_$.standard_width() - expl_offset}s}}")
+        "  {{Format:%-{format_size}s}}" %&%
+        "  {{Units:%-{units_size}s}}" %&%
+        "  {{Label:%-{label_size}s}}" %&%
+        "  {{Explanations:%-{p_$.standard_width() - expl_offset}s}}")
 
     frmt %>%
         mutate(
-            Explanation = map_chr(Explanation, func),
+            Explanations = map_chr(Explanations, func),
             Result = glue_fmt_chr(row_format)) %>%
-        pull(Result)
+        pull(Result) -> body
+
+    header <- glue_fmt_chr(glue_fmt(
+        "  {{'Bytes':%{bytes_size}s}}" %&%
+        "  {{'Format':%-{format_size}s}}" %&%
+        "  {{'Units':%-{units_size}s}}" %&%
+        "  {{'Label':%-{label_size}s}}" %&%
+        "  {{'Explanations':%-{p_$.standard_width() - expl_offset}s}}"))
+
+    list(Header = header, Body = body)
 }
