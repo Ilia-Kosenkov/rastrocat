@@ -37,3 +37,8 @@ assert <- function(expr, err_msg = NULL) {
                 cc("rastrocat_error_assert", "rastrocat_invalid_arg"))
     }
 }
+
+validate_formats <- function(input) {
+    vec_assert(input, character())
+    str_detect(str_trim(input), regex("^(?:[FE]\\d+\\.\\d+|[AI]\\d+)$", ignore_case = TRUE))
+}

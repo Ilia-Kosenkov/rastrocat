@@ -4,7 +4,7 @@
 #' @importFrom rlang    quo_get_expr quo_get_env is_null is_na
 #' @importFrom glue     glue
 #' @importFrom readr    parse_integer
-#' @importFrom stringr  str_trim str_dup str_sub str_locate_all str_ends
+#' @importFrom stringr  str_trim str_dup str_sub str_locate_all str_ends regex
 #' @importFrom purrr    %>% discard flatten_chr
 
 NULL
