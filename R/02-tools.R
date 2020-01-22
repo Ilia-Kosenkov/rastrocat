@@ -20,3 +20,17 @@ assign_inc <- function(what, at, value) {
 
     what
 }
+
+assert <- function(expr, err_msg = NULL) {
+    ex <- enexpr(expr)
+    if (!expr) {
+        if (vec_is(err_msg, character(), 1L) && !vec_is_empty(err_msg))
+            abort(
+                glue_fmt("Assertion `{expr_text(ex)}` failed: \"{err_msg}\"."),
+                "rastrocat_assertion_failed")
+        else
+            abort(
+                glue_fmt("Assertion `{expr_text(ex)}` failed."),
+                "rastrocat_assertion_failed")
+    }
+}
