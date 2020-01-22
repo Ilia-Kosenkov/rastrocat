@@ -42,6 +42,7 @@ ReadMeGen$set("private", ".generate_line", .generate_line)
 ReadMeGen$set("private", ".validate", .validate)
 ReadMeGen$set("private", ".get_short_author", .get_short_author)
 ReadMeGen$set("private", ".pad_str", .pad_str)
+ReadMeGen$set("public", ".generate_data_list", .generate_data_list)
 
 ReadMeGen$set("active", "Description", function(value) {
     if (is_missing(value))
@@ -75,5 +76,3 @@ ReadMeGen$set("public", "set_keywords", .set_keywords)
 ReadMeGen$set("public", "set_adc_keywords", .set_adc_keywords)
 ReadMeGen$set("public", "assign_data", .assign_data)
 
-
-ReadMeGen$set("public", ".generate_data_list", .generate_data_list)

@@ -261,7 +261,7 @@
         return(NULL)
 
     max_len <- sum(p_$.format$Size)
-    
+
     p_$.data %>%
         transmute(
             FileName,
@@ -274,8 +274,8 @@
 
 
     max_fname_sz <- max(nchar(tmp$FileName))
-    int_sz <- 8L
-    func <- (~p_$.wrap_join(.x, pad_offset = max_fname_sz + 2L * int_sz + 3L, pad_first = FALSE)) %>>%
+    int_sz <- cc(6L, 8L)
+    func <- (~p_$.wrap_join(.x, pad_offset = max_fname_sz + sum(int_sz) + 3L, pad_first = FALSE)) %>>%
                 (~str_trim(.x, "left"))
 
 
@@ -283,10 +283,20 @@
 
     frmt <- glue_fmt(
         "{{FileName:%-{max_fname_sz}s}}" %&%
-        " {{Lrecl:%{int_sz}d}} {{if_else(is.na(Records), '.', as.character(Records)):%{int_sz}s}}" %&% 
-        " {{Explanation:%-{p_$.standard_width() - max_fname_sz - 2L * int_sz - 3L}s}}")
+        " {{as.character(Lrecl):%{int_sz[1]}s}}" %&%
+        " {{if_else(is.na(Records), '.', as.character(Records)):%{int_sz[2]}s}}" %&%
+        " {{Explanation:%-{p_$.standard_width() - max_fname_sz - sum(int_sz) - 3L}s}}")
 
     tmp %>%
         mutate(Str = glue_fmt_chr(frmt)) %>%
-        pull(Str)
+        pull(Str) -> output
+
+    list(
+        Header = glue_fmt_chr(glue_fmt(
+            " {{'FileName':%-{max_fname_sz}s}}" %&%
+            " {{'Lrecl':%{int_sz[1]}s}}" %&%
+            " {{'Records':%{int_sz[1]}s}}" %&%
+            " {{'Explanation':%-{p_$.standard_width() - max_fname_sz - sum(int_sz) - 3L}s}}"
+         )),
+         Body = output)
 }
