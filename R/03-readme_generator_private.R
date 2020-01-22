@@ -18,9 +18,9 @@
         nchar(private$.title) +
             nchar(auth_short) +
                 4L + # Year space
-                    2L + # Parentheses around authorname
-                        3L > private$.standard_width()) # Spaces between components
-                            abort(glue_fmt("`cat_id`, `title`, `authors` and `year` occupy more than maximum of " %&%
+                2L + # Parentheses around authorname
+                3L > private$.standard_width()) # Spaces between components
+        abort(glue_fmt("`cat_id`, `title`, `authors` and `year` occupy more than maximum of " %&%
                 "{private$.standard_width()} allowed symbols in the header."),
             "rastrocat_parameter_invalid")
 
@@ -39,7 +39,7 @@
     return(result)
 }
 
-.wrap_string <- function(str) {
+.wrap_string <- function(str, wrap_at = "[\\s\\.!?\\-]") {
     fixed_size <- private$.standard_width() - private$.description_offset()
     n <- nchar(str) %/% fixed_size
 
@@ -65,13 +65,13 @@
             offset <- offset + len
             break
         }
-        else if (str_ends(temp, "[\\s\\.!?\\-]")) {
+        else if (str_ends(temp, wrap_at)) {
             output[id] <- str_dup(" ", dup_size) %&% str_trim(temp, "right")
             id <- id + 1L
             offset <- offset + len
         }
         else {
-            pos <- as.vector(str_locate_all(temp, "[\\s\\.!?\\-]")[[1]])
+            pos <- as.vector(str_locate_all(temp, wrap_at)[[1]])
             pos <- pos[vec_size(pos) %/% 2L]
             if (pos < 0.8 * len) {
                 output[id] <- str_dup(" ", dup_size) %&% str_trim(temp, "right")
@@ -98,8 +98,8 @@
     return(discard(output, is.na))
 }
 
-.wrap_join <- function(str, by = "\n", pad_with = "") {
-    pad_with %&% paste(private$.wrap_string(str), collapse = by)
+.wrap_join <- function(str, by = "\n", pad_with = "", wrap_at = "[\\s\\.!?\\-]") {
+    pad_with %&% paste(private$.wrap_string(str, wrap_at), collapse = by)
 }
 
 .generate_readme <- function() {
@@ -120,9 +120,12 @@
     assign_inc(output, id, title)
     assign_inc(output, id, p_$.generate_line("="))
     assign_inc(output, id, p_$.wrap_join(p_$.full_title))
-    assign_inc(output, id, p_$.pad_str(p_$.wrap_join(authors)))
+    assign_inc(output, id, p_$.wrap_join(authors, pad_with = p_$.pad_str(), wrap_at = ","))
     if (!is_na(p_$.references)) {
-        assign_inc(output, id, paste(glue_fmt("{str_dup(' ', p_$.description_offset())}<{p_$.references}>"), collapse = "\n"))
+        assign_inc(output, id,
+            paste(
+                glue_fmt("{str_dup(' ', p_$.description_offset())}<{p_$.references}>"),
+                collapse = "\n"))
     }
     if (!is_na(p_$.bibcode_references)) {
         assign_inc(output, id,
@@ -134,12 +137,16 @@
 
     if (!is_na(p_$.keywords)) {
         assign_inc(output, id,
-            p_$.wrap_join(glue_fmt("Keywords: {paste(p_$.keywords, collapse = ' ; ')}")))
+            p_$.wrap_join(
+                glue_fmt("Keywords: {paste(p_$.keywords, collapse = ' ; ')}"),
+                wrap_at = ";"))
     }
 
     if (!is_na(p_$.adc_keywords)) {
         assign_inc(output, id,
-            p_$.wrap_join(glue_fmt("ADC_Keywords: {paste(p_$.adc_keywords, collapse = ' ; ')}")))
+            p_$.wrap_join(
+                glue_fmt("ADC_Keywords: {paste(p_$.adc_keywords, collapse = ' ; ')}"),
+                wrap_at = ";"))
     }
 
     if (!is_na(p_$.abstract)) {
@@ -157,7 +164,7 @@
     paste(output, collapse = "\n")
 }
 
-.pad_str <- function(str, symb = " ", size = private$.description_offset()) {
+.pad_str <- function(str = "", symb = " ", size = private$.description_offset()) {
     str_dup(symb, size) %&% str
 }
 
