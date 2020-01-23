@@ -14,7 +14,7 @@
         warn(glue_fmt("`cat_id` = { p_$.cat_id} is longer than {p_$.max_cat_id_len()} symbols."),
             "rastrocat_parameter_suspicious")
 
-    auth_short <- p_$.get_short_author()
+    auth_short <- get_short_author(p_$.authors)
 
     if (nchar(p_$.cat_id) +
         nchar(p_$.title) +
@@ -58,13 +58,7 @@
     str_dup(symbol, size)
 }
 
-.get_short_author <- function() {
-    result <- str_extract(private$.authors[1], "^[\\w\\.\\-']+(?=(\\s|$))")
-    if (vec_size(private$.authors) > 1L)
-        result <- paste0(result, "+")
 
-    return(result)
-}
 
 .wrap_string <- function(
         str,
@@ -154,7 +148,7 @@
 
     output <- vec_init(character(), 10L)
 
-    auth_year_str <- glue_fmt("({p_$.get_short_author()} {p_$.year:%4d})")
+    auth_year_str <- glue_fmt("({get_short_author(p_$.authors)} {p_$.year:%4d})")
     title_len <- p_$.standard_width() - nchar(p_$.cat_id) - nchar(auth_year_str) - 2L
     title <- glue_fmt(glue_fmt("{{p_$.cat_id}} {{p_$.title:%{title_len}s}} {{auth_year_str}}"))
 

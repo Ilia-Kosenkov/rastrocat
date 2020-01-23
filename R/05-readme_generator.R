@@ -54,7 +54,6 @@ ReadMeGen$set("private", ".wrap_string", .wrap_string)
 ReadMeGen$set("private", ".wrap_join", .wrap_join)
 ReadMeGen$set("private", ".generate_line", .generate_line)
 ReadMeGen$set("private", ".validate", .validate)
-ReadMeGen$set("private", ".get_short_author", .get_short_author)
 ReadMeGen$set("private", ".pad_str", .pad_str)
 ReadMeGen$set("private", ".generate_data_list", .generate_data_list)
 ReadMeGen$set("private", ".generate_format_table", .generate_format_table)
@@ -74,7 +73,7 @@ ReadMeGen$set("active", "Abstract", function(value) {
         return(private$.abstract)
     vec_assert(value, character(), 1L)
     private$.abstract <- value
-    self
+    invisible(self)
 })
 
 ReadMeGen$set("active", "FullTitle", function(value) {
@@ -82,7 +81,7 @@ ReadMeGen$set("active", "FullTitle", function(value) {
         return(private$.full_title)
     vec_assert(value, character(), 1L)
     private$.full_title <- value
-    self
+    invisible(self)
 })
 
 ReadMeGen$set("active", "TableNotes", function(value) {
@@ -90,7 +89,7 @@ ReadMeGen$set("active", "TableNotes", function(value) {
         return(private$.table_notes)
     vec_assert(value, character())
     private$.table_notes <- value
-    self
+    invisible(self)
 })
 
 
