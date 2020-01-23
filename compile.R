@@ -8,6 +8,7 @@ if (interactive()) {
     library(purrr)
     library(tidyr)
     library(dplyr)
+    library(tibble)
     # Library imports for debug go here
     #
     #if (!exists("compile_src"))
