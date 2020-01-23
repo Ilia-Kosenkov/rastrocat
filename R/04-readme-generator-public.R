@@ -44,11 +44,26 @@
         assert(is.data.frame(data), "`data` should be a `data.frame`-compatible type")
         vec_assert(file_name, character(), 1L)
         vec_assert(desc, character(), 1L)
-        private$.data <- tibble(FileName = file_name, Description = desc, Data = list_of(data))
+        private$.data <- tibble(FileName = file_name, Description = desc, Data = list(data))
     }
 
     private$.format <- convert_formats(as_tibble(format))
     invisible(self)
+}
+
+.assign_multiple_datasets <- function(format, data) {
+    assert(is.data.frame(format), "`format` should be a `data.frame`-compatible type")
+    assert(vec_size(format) >= 1L, "`format` should have at least one row")
+    assert(is_tibble(data), "`data` should be a tibble")
+    assert(vec_size(data) > 0L, "`data` should contain at least one entry")
+
+    assert(every(cc("Data", "Description", "FileName"), vec_in, names2(data)),
+        "`data` should have `Data`, `Description` and `FileName` columns")
+
+    assert(every(data$Data, is.data.frame), "`data` $ `Data` should be a list of data.frames")
+
+    private$.format <- convert_formats(as_tibble(format))
+    private$.data <- mutate(data, Data = map(Data, as_tibble))
 }
 
 .set_remarks <- function(...) {
