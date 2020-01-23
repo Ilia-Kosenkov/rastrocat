@@ -7,15 +7,23 @@ Authors@R:
            role = c("aut", "cre"),
            email = "ilia.kosenkov.at.gm@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: Generates ReadMe files for Standard Astronomical Catalogues
-License: MIT
+Description: Generates ReadMe files for Standard Astronomical Catalogues.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 ByteCompile: true
 RoxygenNote: 7.0.2
 Depends:
-	rlang,
+    R (>= 3.5.0)
+Imports:
+	utils,
+	R6,
 	vctrs,
-	stringr,
+	rlang,
 	glue,
-	readr
+	readr,
+	stringr,
+	purrr,
+	tibble,
+	dplyr,
+	tidyr

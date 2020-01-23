@@ -43,6 +43,8 @@ validate_formats <- function(input) {
     all(str_detect(str_trim(input), regex("^(?:[FE]\\d+\\.\\d+|[AI]\\d+)$", ignore_case = TRUE)))
 }
 
+utils::globalVariables(c("Format", "Parsed", "Digits"))
+
 convert_formats <- function(input) {
 
     input %>%

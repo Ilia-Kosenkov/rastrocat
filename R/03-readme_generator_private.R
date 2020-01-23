@@ -366,6 +366,7 @@
     self
 }
 
+utils::globalVariables(c("FileName", "Data", "Description", "Explanations", "Str"))
 
 .generate_data_list <- function() {
     p_ <- private
@@ -417,6 +418,7 @@
          Body = output)
 }
 
+utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
 
 .generate_format_table <- function() {
     p_ <- private

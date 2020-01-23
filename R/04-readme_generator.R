@@ -1,3 +1,9 @@
+utils::globalVariables(c("self", "private"))
+
+#' @docType class
+#' @title ReadMeGen
+#' @description Generator of specific ReadMe files
+#' @export
 ReadMeGen <- R6::R6Class(
     "ReadMeGen",
     private = list(
@@ -21,6 +27,12 @@ ReadMeGen <- R6::R6Class(
         .description_offset = function() 4L
     ),
     public = list(
+        #' @description Constructor of \code{ReadMeGen}
+        #' @return Constructed object
+        #' @param cat_id Mandatory id of the catalogue / project.
+        #' @param title Mandatory short title.
+        #' @param authors A list of authors.
+        #' @param year Year of puclication.
         initialize = function(cat_id, title, authors, year) {
             vec_assert(cat_id, character(), 1L)
             vec_assert(title, character(), 1L)
@@ -48,12 +60,13 @@ ReadMeGen$set("private", ".generate_data_list", .generate_data_list)
 ReadMeGen$set("private", ".generate_format_table", .generate_format_table)
 
 
-ReadMeGen$set("active", "Description", function(value) {
+ReadMeGen$set("active", "Description",
+function(value) {
     if (is_missing(value))
         return(private$.description)
     vec_assert(value, character(), 1L)
     private$.description <- value
-    self
+    invisible(self)
 })
 
 ReadMeGen$set("active", "Abstract", function(value) {
