@@ -159,7 +159,7 @@
     assign_inc(output, id, title)
     assign_inc(output, id, p_$.generate_line("="))
     assign_inc(output, id, p_$.wrap_join(p_$.full_title))
-    assign_inc(output, id, p_$.wrap_join(authors, pad_with = p_$.pad_str(), wrap_at = ","))
+    assign_inc(output, id, p_$.wrap_join(authors, pad_with = p_$.pad_str(), wrap_at = ",\\ "))
     if (!is_na(p_$.references)) {
         assign_inc(output, id,
             paste(
