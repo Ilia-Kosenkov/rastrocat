@@ -289,9 +289,14 @@
             }
         }
 
-    paste(
-        replace_na(vec_slice(output, 1:max(last_index, 1L)), ""),
-        collapse = "\n")
+    str_pad(
+        str_split(
+            paste(
+                replace_na(vec_slice(output, 1:max(last_index, 1L)), ""),
+                collapse = "\n"),
+            "\n")[[1]],
+        width = p_$.standard_width(),
+        side = "right")
 }
 
 .pad_str <- function(str = "", symb = " ", size = private$.description_offset()) {
