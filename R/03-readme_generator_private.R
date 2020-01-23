@@ -149,7 +149,7 @@
 
     auth_year_str <- glue_fmt("({get_short_author(p_$.authors)} {p_$.year:%4d})")
     title_len <- p_$.standard_width() - nchar(p_$.cat_id) - nchar(auth_year_str) - 2L
-    title <- glue_fmt(glue_fmt("{{p_$.cat_id}} {{p_$.title:%{title_len}s}} {{auth_year_str}}"))
+    title <- glue_fmt_chr(glue_fmt("{{p_$.cat_id}} {{p_$.title:%{title_len}s}} {{auth_year_str}}"))
 
     authors <- paste(p_$.authors, collapse = ", ")
 

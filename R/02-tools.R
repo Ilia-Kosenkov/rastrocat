@@ -72,8 +72,8 @@ get_short_author <- function(authors) {
 
     auth <- str_trim(authors[1])
 
-    pos <- max(str_locate_all(auth, "\\s")[[1]][, "start"]) 
-    result <- str_sub(auth, 1L, pos)
+    pos <- max(str_locate_all(auth, "\\s")[[1]][, "start"])
+    result <- str_trim(str_sub(auth, 1L, pos), side = "right")
 
     if (vec_size(authors) > 1L)
         result <- paste0(result, "+")
