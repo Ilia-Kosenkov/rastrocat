@@ -324,22 +324,24 @@ utils::globalVariables(c("FileName", "Data", "Description", "Explanations", "Str
 
 
     max_fname_sz <- max(nchar(tmp$FileName))
+    col_gap <- str_dup(" ", p_$.column_gap())
+
     int_sz <- cc(6L, 8L)
     func <-
         (~p_$.wrap_join(
             .x,
-            pad_offset = max_fname_sz + sum(int_sz) + 6L + p_$.description_offset(),
+            pad_offset = max_fname_sz + sum(int_sz) + 3L * p_$.column_gap() + p_$.description_offset(),
             pad_first = TRUE,
-            pad_first_offset = max_fname_sz + sum(int_sz) + 6L)) %>>%
+            pad_first_offset = max_fname_sz + sum(int_sz) + 3L * p_$.column_gap())) %>>%
         (~str_trim(.x, "left"))
 
     tmp <- mutate(tmp, Explanations = map_chr(Explanations, func))
 
     frmt <- glue_fmt(
         "{{FileName:%-{max_fname_sz}s}}" %&%
-        "  {{as.character(Lrecl):%{int_sz[1]}s}}" %&%
-        "  {{if_else(is.na(Records), '.', as.character(Records)):%{int_sz[2]}s}}" %&%
-        "  {{Explanations}}")
+        "{col_gap}{{as.character(Lrecl):%{int_sz[1]}s}}" %&%
+        "{col_gap}{{if_else(is.na(Records), '.', as.character(Records)):%{int_sz[2]}s}}" %&%
+        "{col_gap}{{Explanations}}")
 
     tmp %>%
         mutate(Str = glue_fmt_chr(frmt)) %>%
@@ -348,9 +350,9 @@ utils::globalVariables(c("FileName", "Data", "Description", "Explanations", "Str
     list(
         Header = glue_fmt_chr(glue_fmt(
             " {{'FileName':%-{max_fname_sz}s}}" %&%
-            "  {{'Lrecl':%{int_sz[1]}s}}" %&%
-            "  {{'Records':%{int_sz[1]}s}}" %&%
-            "  Explanations"
+            "{col_gap}{{'Lrecl':%{int_sz[1]}s}}" %&%
+            "{col_gap}{{'Records':%{int_sz[1]}s}}" %&%
+            "{col_gap}Explanations"
          )),
          Body = output)
 }
@@ -381,11 +383,11 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
     label_size <- max(cc(nchar(frmt$Label), 5L))
     format_size <- 6L
 
-    expl_offset <- bytes_size + label_size + units_size + format_size + 5L * 2L
+    expl_offset <- bytes_size + label_size + units_size + format_size + 5L * p_$.column_gap()
 
     frmt <- frmt %>%
         mutate(
-            Bytes = cumsum(replace_na(lag(Size + 2L), 3L)),
+            Bytes = cumsum(replace_na(lag(Size + p_$.column_gap()), 3L)),
             Bytes2 = Bytes + Size - 1L,
             Bytes = if_else(
                 Bytes == Bytes2,
@@ -393,6 +395,7 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
                 glue_fmt_chr(glue_fmt("{{Bytes:%{len_size}d}}-{{Bytes2:%{len_size}d}}"))),
             Bytes2 = NULL)
 
+    col_gap <- str_dup(" ", p_$.column_gap())
 
     func <-
         (~p_$.wrap_join(
@@ -403,11 +406,11 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
         (~str_trim(.x, "left"))
 
     row_format <- glue_fmt(
-        "  {{Bytes:%{bytes_size}s}}" %&%
-        "  {{Format:%-{format_size}s}}" %&%
-        "  {{Units:%-{units_size}s}}" %&%
-        "  {{Label:%-{label_size}s}}" %&%
-        "  {{Explanations}}")
+        "{col_gap}{{Bytes:%{bytes_size}s}}" %&%
+        "{col_gap}{{Format:%-{format_size}s}}" %&%
+        "{col_gap}{{Units:%-{units_size}s}}" %&%
+        "{col_gap}{{Label:%-{label_size}s}}" %&%
+        "{col_gap}{{Explanations}}")
 
     frmt %>%
         mutate(
@@ -416,11 +419,20 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
         pull(Result) -> body
 
     header <- glue_fmt_chr(glue_fmt(
-        "  {{'Bytes':%{bytes_size}s}}" %&%
-        "  {{'Format':%-{format_size}s}}" %&%
-        "  {{'Units':%-{units_size}s}}" %&%
-        "  {{'Label':%-{label_size}s}}" %&%
-        "  Explanations"))
+        "{col_gap}{{'Bytes':%{bytes_size}s}}" %&%
+        "{col_gap}{{'Format':%-{format_size}s}}" %&%
+        "{col_gap}{{'Units':%-{units_size}s}}" %&%
+        "{col_gap}{{'Label':%-{label_size}s}}" %&%
+        "{col_gap}Explanations"))
 
     list(Header = header, Body = body)
+}
+
+
+.generate_data <- function() {
+    p_ <- private
+    if (is_empty(p_$.data))
+        return(list())
+
+    p_$.format
 }

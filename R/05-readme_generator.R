@@ -24,7 +24,8 @@ ReadMeGen <- R6::R6Class(
         .remarks = NULL,
         .standard_width = function() 80L,
         .max_cat_id_len = function() 10L,
-        .description_offset = function() 4L
+        .description_offset = function() 4L,
+        .column_gap = function() 2L
     ),
     public = list(
         #' @description Constructor of \code{ReadMeGen}
@@ -101,3 +102,4 @@ ReadMeGen$set("public", "set_adc_keywords", .set_adc_keywords)
 ReadMeGen$set("public", "assign_data", .assign_data)
 ReadMeGen$set("public", "set_remarks", .set_remarks)
 ReadMeGen$set("public", "assign_multiple_datasets", .assign_multiple_datasets)
+ReadMeGen$set("public", "generate_data", .generate_data)
