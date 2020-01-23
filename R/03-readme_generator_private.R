@@ -189,13 +189,19 @@
     if (!is_na(p_$.abstract)) {
         id <- id + 1L
         assign_inc(output, id, p_$.wrap_join("Abstract:"))
-        assign_inc(output, id, p_$.wrap_join(p_$.abstract, pad_with = str_dup(" ", p_$.description_offset())))
+        assign_inc(output, id,
+            p_$.wrap_join(
+                p_$.abstract,
+                pad_first_offset = p_$.description_offset()))
     }
 
     if (!is_na(p_$.description)) {
         id <- id + 1L
         assign_inc(output, id, p_$.wrap_join("Description:"))
-        assign_inc(output, id, p_$.wrap_join(p_$.description, pad_with = str_dup(" ", p_$.description_offset())))
+        assign_inc(output, id,
+            p_$.wrap_join(
+                p_$.description,
+                pad_first_offset = p_$.description_offset()))
     }
 
     id <- id + 1L # Space
