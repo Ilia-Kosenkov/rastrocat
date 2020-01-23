@@ -427,6 +427,7 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
     list(Header = header, Body = body)
 }
 
+utils::globalVariables(c("Label", "SprintfFormat"))
 
 .generate_data <- function() {
     p_ <- private
