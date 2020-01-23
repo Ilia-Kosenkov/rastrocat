@@ -285,7 +285,19 @@
 
     assign_inc(output, id, glue_fmt_chr(glue_fmt("(End) {{p_$.authors[1]:%{auth_offset}s}} {{date:%{date_offset}s}}")))
 
-    paste(output, collapse = "\n")
+
+    last_index <- vec_size(output)
+    if (last_index > 1L)
+        for (index in last_index:1L) {
+            if (!is.na(output[index])) {
+                last_index <- index
+                break
+            }
+        }
+
+    paste(
+        replace_na(vec_slice(output, 1:max(last_index, 1L)), ""),
+        collapse = "\n")
 }
 
 .pad_str <- function(str = "", symb = " ", size = private$.description_offset()) {
