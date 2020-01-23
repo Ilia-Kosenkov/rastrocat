@@ -210,9 +210,11 @@
     assign_inc(output, id, p_$.generate_line("-"))
 
     data_list <- p_$.generate_data_list()
+    # File summary header
     assign_inc(output, id, data_list$Header)
     assign_inc(output, id, p_$.generate_line("-"))
 
+    # File summary
     for (item in data_list$Body)
         assign_inc(output, id, item)
     assign_inc(output, id, p_$.generate_line("-"))
@@ -228,17 +230,18 @@
     assign_inc(output, id, p_$.generate_line("-"))
 
     format_desc <- p_$.generate_format_table()
-
+    # Format table header
     assign_inc(output, id, format_desc$Header)
     assign_inc(output, id, p_$.generate_line("-"))
 
+    # Format table
     for (item in format_desc$Body) {
         assign_inc(output, id, item)
     }
 
     assign_inc(output, id, p_$.generate_line("-"))
 
-    # Insert table notes here
+    # Table notes
     if (!is_na(p_$.table_notes) && !vec_is_empty(p_$.table_notes)) {
         for (item in map_chr(p_$.table_notes, p_$.wrap_join)) {
             id <- id + 1L
@@ -251,6 +254,17 @@
     assign_inc(output, id, p_$.generate_line("-"))
 
     # Insert extra textual information here
+    if (!is_empty(p_$.remarks)) {
+        map(p_$.remarks, map_chr, p_$.wrap_join, pad_first_offset = p_$.description_offset()) %>%
+            map(paste, collapse = "\n") %>%
+            imap(~glue_fmt_chr("{.y}:\n{.x}")) -> remarks
+
+        for (item in remarks) {
+            id <- id + 1L
+            assign_inc(output, id, item)
+        }
+        id <- id + 1L
+    }
 
     assign_inc(output, id, p_$.generate_line("="))
 
@@ -316,8 +330,7 @@
 }
 
 .set_remarks <- function(...) {
-    remarks <- flatten(list2(...))
-    reamrks <- vec_cast_common(!!!remarks, .to = character())
+    remarks <- vec_cast_common(!!!list2(...), .to = character())
     assert(all(nzchar(names2(remarks))), "Remarks should be convertible to named character list.")
 
     private$.remarks <- remarks
