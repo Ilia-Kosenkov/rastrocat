@@ -213,6 +213,29 @@
 
     id <- id + 2L # Two spaces
 
+    if (!is_null(p_$.data) && !vec_is_empty(p_$.data))
+        file_names <- paste(p_$.data$FileName, collapse = " ")
+    else
+        file_names <- ""
+
+    assign_inc(output, id, p_$.wrap_join(glue_fmt_chr("Byte-by-byte Description of file: {file_names}")))
+    assign_inc(output, id, p_$.generate_line("-"))
+
+    format_desc <- p_$.generate_format_table()
+
+    assign_inc(output, id, format_desc$Header)
+    assign_inc(output, id, p_$.generate_line("-"))
+
+    for (item in format_desc$Body) {
+        assign_inc(output, id, item)
+    }
+
+    assign_inc(output, id, p_$.generate_line("-"))
+    assign_inc(output, id, p_$.generate_line("-"))
+
+    assign_inc(output, id, p_$.generate_line("="))
+
+
     paste(output, collapse = "\n")
 }
 
