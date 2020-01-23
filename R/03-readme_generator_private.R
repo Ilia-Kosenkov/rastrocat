@@ -277,6 +277,14 @@
     assign_inc(output, id, p_$.generate_line("="))
 
 
+    auth_len <- nchar(p_$.authors[1])
+    rem_space <- p_$.standard_width() - 5L - 10L - 2L
+    auth_offset <- (rem_space + auth_len) %/% 2L
+    date_offset <- p_$.standard_width() - 5L - 1L - auth_offset - 1L
+    date <- format(Sys.time(), "%Y-%m-%d")
+
+    assign_inc(output, id, glue_fmt_chr(glue_fmt("(End) {{p_$.authors[1]:%{auth_offset}s}} {{date:%{date_offset}s}}")))
+
     paste(output, collapse = "\n")
 }
 
