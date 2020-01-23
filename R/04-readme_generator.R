@@ -14,6 +14,8 @@ ReadMeGen <- R6::R6Class(
         .adc_keywords = NA_character_,
         .data = NULL,
         .format = NULL,
+        .table_notes = NA_character_,
+        .remarks = NULL,
         .standard_width = function() 80L,
         .max_cat_id_len = function() 10L,
         .description_offset = function() 4L
@@ -70,6 +72,14 @@ ReadMeGen$set("active", "FullTitle", function(value) {
     self
 })
 
+ReadMeGen$set("active", "TableNotes", function(value) {
+    if (is_missing(value))
+        return(private$.table_notes)
+    vec_assert(value, character())
+    private$.table_notes <- value
+    self
+})
+
 
 ReadMeGen$set("public", "generate_readme", .generate_readme)
 ReadMeGen$set("public", "set_references", .set_references)
@@ -77,4 +87,4 @@ ReadMeGen$set("public", "set_bibcode_references", .set_bibcode_references)
 ReadMeGen$set("public", "set_keywords", .set_keywords)
 ReadMeGen$set("public", "set_adc_keywords", .set_adc_keywords)
 ReadMeGen$set("public", "assign_data", .assign_data)
-
+ReadMeGen$set("public", "set_remarks", .set_remarks)

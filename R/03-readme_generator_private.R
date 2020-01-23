@@ -239,6 +239,14 @@
     assign_inc(output, id, p_$.generate_line("-"))
 
     # Insert table notes here
+    if (!is_na(p_$.table_notes) && !vec_is_empty(p_$.table_notes)) {
+        for (item in map_chr(p_$.table_notes, p_$.wrap_join)) {
+            id <- id + 1L
+            assign_inc(output, id, item)
+        }
+        id <- id + 1L
+    }
+
 
     assign_inc(output, id, p_$.generate_line("-"))
 
@@ -304,6 +312,16 @@
     }
 
     private$.format <- convert_formats(as_tibble(format))
+    self
+}
+
+.set_remarks <- function(...) {
+    remarks <- flatten(list2(...))
+    reamrks <- vec_cast_common(!!!remarks, .to = character())
+    assert(all(nzchar(names2(remarks))), "Remarks should be convertible to named character list.")
+
+    private$.remarks <- remarks
+
     self
 }
 
