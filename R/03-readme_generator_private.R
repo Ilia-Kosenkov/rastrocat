@@ -231,7 +231,12 @@
     }
 
     assign_inc(output, id, p_$.generate_line("-"))
+
+    # Insert table notes here
+
     assign_inc(output, id, p_$.generate_line("-"))
+
+    # Insert extra textual information here
 
     assign_inc(output, id, p_$.generate_line("="))
 
@@ -309,25 +314,29 @@
             FileName,
             Lrecl = max_len,
             Records = map_int(Data, vec_size),
-            Explanation = Description) -> tmp
+            Explanations = Description) -> tmp
     bind_rows(
-        tibble(FileName = "ReadMe", Lrecl = p_$.standard_width(), Records = NA_integer_, Explanation = "This file"),
+        tibble(FileName = "ReadMe", Lrecl = p_$.standard_width(), Records = NA_integer_, Explanations = "This file"),
         tmp) -> tmp
 
 
     max_fname_sz <- max(nchar(tmp$FileName))
     int_sz <- cc(6L, 8L)
-    func <- (~p_$.wrap_join(.x, pad_offset = max_fname_sz + sum(int_sz) + 6L, pad_first = FALSE)) %>>%
-                (~str_trim(.x, "left"))
+    func <-
+        (~p_$.wrap_join(
+            .x,
+            pad_offset = max_fname_sz + sum(int_sz) + 6L + p_$.description_offset(),
+            pad_first = TRUE,
+            pad_first_offset = max_fname_sz + sum(int_sz) + 6L)) %>>%
+        (~str_trim(.x, "left"))
 
-
-    tmp <-  mutate(tmp, Explanation = map_chr(Explanation, func))
+    tmp <-  mutate(tmp, Explanations = map_chr(Explanations, func))
 
     frmt <- glue_fmt(
         "{{FileName:%-{max_fname_sz}s}}" %&%
         "  {{as.character(Lrecl):%{int_sz[1]}s}}" %&%
         "  {{if_else(is.na(Records), '.', as.character(Records)):%{int_sz[2]}s}}" %&%
-        "  {{Explanation:%-{p_$.standard_width() - max_fname_sz - sum(int_sz) - 6L}s}}")
+        "  {{Explanations}}")
 
     tmp %>%
         mutate(Str = glue_fmt_chr(frmt)) %>%
@@ -338,7 +347,7 @@
             " {{'FileName':%-{max_fname_sz}s}}" %&%
             "  {{'Lrecl':%{int_sz[1]}s}}" %&%
             "  {{'Records':%{int_sz[1]}s}}" %&%
-            "  {{'Explanation':%-{p_$.standard_width() - max_fname_sz - sum(int_sz) - 6L}s}}"
+            "  Explanations"
          )),
          Body = output)
 }
@@ -385,7 +394,6 @@
         (~p_$.wrap_join(
             .x,
             pad_offset = expl_offset + p_$.description_offset(),
-            width = 85L,
             pad_first = TRUE,
             pad_first_offset = expl_offset)) %>>%
         (~str_trim(.x, "left"))
@@ -395,7 +403,7 @@
         "  {{Format:%-{format_size}s}}" %&%
         "  {{Units:%-{units_size}s}}" %&%
         "  {{Label:%-{label_size}s}}" %&%
-        "  {{Explanations:%-{p_$.standard_width() - expl_offset}s}}")
+        "  {{Explanations}}")
 
     frmt %>%
         mutate(
@@ -408,7 +416,7 @@
         "  {{'Format':%-{format_size}s}}" %&%
         "  {{'Units':%-{units_size}s}}" %&%
         "  {{'Label':%-{label_size}s}}" %&%
-        "  {{'Explanations':%-{p_$.standard_width() - expl_offset}s}}"))
+        "  Explanations"))
 
     list(Header = header, Body = body)
 }
