@@ -59,7 +59,6 @@
 }
 
 
-
 .wrap_string <- function(
         str,
         wrap_at = "[\\s\\.!?\\-]",
@@ -434,5 +433,20 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
     if (is_empty(p_$.data))
         return(list())
 
-    p_$.format
+    column_padding <- str_dup(" ", p_$.column_gap())
+
+    p_$.format %>%
+        transmute(
+            Format = map2_chr(
+                Label,
+                SprintfFormat,
+                ~ glue_fmt_chr("{column_padding}{{{.x}:{.y}}}"))) %>%
+        pull(Format) %>%
+        paste(collapse = "") -> frmt
+
+    map(p_$.data$Data, function(dt) {
+        pmap_chr(dt, function(...) glue_fmt_chr(frmt, .envir = list2(...)))
+
+    }) %>%
+        set_names(p_$.data$FileName)
 }
