@@ -18,7 +18,7 @@ library(tibble, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
 library(purrr, warn.conflicts = FALSE)
 
-# "Lorem ipsum" is used as a standard long-text filler and as atool for 
+# "Lorem ipsum" is used as a standard long-text filler and as a tool for 
 # line wrapping correction tests.
 lorem_ipsum <- "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 ```
@@ -62,7 +62,7 @@ Generate format table using `mtcars` dataset as source:
 frmt <- tibble(
             Format = vec_repeat("F5.1", ncol(mtcars)), 
             Label = names(mtcars), 
-            Explanations = "WTF") %>%
+            Explanations = "?") %>%
         mutate(Explanations = if_else(row_number() == 10L, lorem_ipsum, Explanations))
 ```
 
@@ -154,15 +154,15 @@ gen$generate_readme() %>% paste(collapse = "\n") %>% cat
     ## --------------------------------------------------------------------------------
     ##     Bytes  Format  Units  Label  Explanations                                   
     ## --------------------------------------------------------------------------------
-    ##     3-  7  F5.1    ---    mpg    WTF                                            
-    ##    10- 14  F5.1    ---    cyl    WTF                                            
-    ##    17- 21  F5.1    ---    disp   WTF                                            
-    ##    24- 28  F5.1    ---    hp     WTF                                            
-    ##    31- 35  F5.1    ---    drat   WTF                                            
-    ##    38- 42  F5.1    ---    wt     WTF                                            
-    ##    45- 49  F5.1    ---    qsec   WTF                                            
-    ##    52- 56  F5.1    ---    vs     WTF                                            
-    ##    59- 63  F5.1    ---    am     WTF                                            
+    ##     3-  7  F5.1    ---    mpg    ?                                              
+    ##    10- 14  F5.1    ---    cyl    ?                                              
+    ##    17- 21  F5.1    ---    disp   ?                                              
+    ##    24- 28  F5.1    ---    hp     ?                                              
+    ##    31- 35  F5.1    ---    drat   ?                                              
+    ##    38- 42  F5.1    ---    wt     ?                                              
+    ##    45- 49  F5.1    ---    qsec   ?                                              
+    ##    52- 56  F5.1    ---    vs     ?                                              
+    ##    59- 63  F5.1    ---    am     ?                                              
     ##    66- 70  F5.1    ---    gear   Lorem ipsum dolor sit amet, consectetur        
     ##                                      adipiscing elit, sed do eiusmod tempor     
     ##                                      incididunt ut labore et dolore magna       
@@ -175,7 +175,7 @@ gen$generate_readme() %>% paste(collapse = "\n") %>% cat
     ##                                      occaecat cupidatat non proident, sunt in   
     ##                                      culpa qui officia deserunt mollit anim id  
     ##                                      est laborum.                               
-    ##    73- 77  F5.1    ---    carb   WTF                                            
+    ##    73- 77  F5.1    ---    carb   ?                                              
     ## --------------------------------------------------------------------------------
     ##                                                                                 
     ## Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor  
