@@ -264,3 +264,4 @@ __pycache__/
 **/*Rcheck/*
 **/*tar.gz
 R/debug.R
+debug.R
