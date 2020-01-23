@@ -43,6 +43,14 @@
                 "rastrocat_parameter_invalid")
         }
     }
+
+    if (!is_empty(p_$.remarks)) {
+        if (any(nchar(names2(p_$.remarks)) >= p_$.standard_width() - 2L)) {
+            which <- which(nchar(names2(p_$.remarks)) >= p_$.standard_width() - 2L)
+            abort(glue_fmt("The following `remarks` names are longer than single file line:\n" %&%
+                ">\t{paste(names2(p_$.remarks)[which], collapse = '; ')}"))
+        }
+    }
     return(TRUE)
 }
 
