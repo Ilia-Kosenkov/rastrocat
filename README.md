@@ -213,7 +213,7 @@ gen$generate_readme() %>% paste(collapse = "\n") %>% cat
     ##     est laborum.                                                                
     ##                                                                                 
     ## ================================================================================
-    ## (End)                     de FName Author_1 A.-K.                     2020-01-23
+    ## (End)                     de FName Author_1 A.-K.                     2020-02-20
 
 </details>
 
