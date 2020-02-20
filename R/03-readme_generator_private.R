@@ -252,10 +252,10 @@
             assign_inc(output, id, item)
         }
         id <- id + 1L
+        assign_inc(output, id, p_$.generate_line("-"))
     }
 
 
-    assign_inc(output, id, p_$.generate_line("-"))
 
     # Insert extra textual information here
     if (!is_empty(p_$.remarks)) {
@@ -268,9 +268,9 @@
             assign_inc(output, id, item)
         }
         id <- id + 1L
+        assign_inc(output, id, p_$.generate_line("="))
     }
 
-    assign_inc(output, id, p_$.generate_line("="))
 
 
     auth_len <- nchar(p_$.authors[1])
