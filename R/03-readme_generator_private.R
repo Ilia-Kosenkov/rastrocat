@@ -67,10 +67,13 @@
         pad_first = TRUE,
         pad_first_offset = 0L) {
     fixed_size <- width - pad_offset - 1L
-    n <- nchar(str) %/% fixed_size
+
+    dup_size <- ifelse(pad_first, pad_first_offset, pad_offset)
+
+    n <- (nchar(str) - dup_size) %/% fixed_size
 
     if (n == 0L)
-        return(str)
+        return(str_dup(" ", dup_size) %&% str)
 
     output <- vec_init(character(), n + 2L) # extra_space
 
@@ -83,8 +86,8 @@
         sz <- width - 1L - dup_size
 
         temp <- str_trim(str_sub(str, offset, offset + sz), "left")
-        len <- nchar(temp)
 
+        len <- nchar(temp)
         if (nchar(str) <= offset + sz) {
             output[id] <- str_dup(" ", dup_size) %&% str_trim(temp, "right")
             id <- id + 1L
@@ -115,11 +118,11 @@
         if (offset > nchar(str))
             break
 
-            if (id > vec_size(output)) {
-                new_buff <- vec_init(character(), 2L * id)
-                new_buff[1:vec_size(output)] <- output
-                output <- new_buff
-            }
+        if (id > vec_size(output)) {
+            new_buff <- vec_init(character(), 2L * id)
+            new_buff[1:vec_size(output)] <- output
+            output <- new_buff
+        }
     }
 
     return(discard(output, is.na))
