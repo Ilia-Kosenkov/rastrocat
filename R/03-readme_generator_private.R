@@ -3,15 +3,15 @@
 
     current_year <- parse_integer(substr(Sys.Date(), 1L, 4L))
     if (is_na(p_$.year) || p_$.year < (current_year - 100L) || p_$.year > (current_year + 2L))
-        abort(glue_fmt("`year`= {p_$.year:%4d} seems to be out of range. Verify if it is correct"),
+        abort(glue_fmt_chr("`year`= {p_$.year:%4d} seems to be out of range. Verify if it is correct"),
             "rastrocat_parameter_invalid")
 
     if (p_$.year > current_year)
-        warn(glue_fmt("`year` = { p_$.year:%4d} is set in the future (current year is {current_year:%4d}."),
+        warn(glue_fmt_chr("`year` = { p_$.year:%4d} is set in the future (current year is {current_year:%4d}."),
             "rastrocat_parameter_suspicious")
 
     if (nchar(p_$.cat_id) > p_$.max_cat_id_len())
-        warn(glue_fmt("`cat_id` = { p_$.cat_id} is longer than {p_$.max_cat_id_len()} symbols."),
+        warn(glue_fmt_chr("`cat_id` = { p_$.cat_id} is longer than {p_$.max_cat_id_len()} symbols."),
             "rastrocat_parameter_suspicious")
 
     auth_short <- get_short_author(p_$.authors)
@@ -22,7 +22,7 @@
                 4L + # Year space
                 2L + # Parentheses around authorname
                 3L > p_$.standard_width()) # Spaces between components
-        abort(glue_fmt("`cat_id`, `title`, `authors` and `year` occupy more than maximum of " %&%
+        abort(glue_fmt_chr("`cat_id`, `title`, `authors` and `year` occupy more than maximum of " %&%
                 "{p_$.standard_width()} allowed symbols in the header."),
             "rastrocat_parameter_invalid")
 
@@ -39,7 +39,7 @@
                 "rastrocat_parameter_invalid")
 
         if (!is_null(p_$.data) && !every(p_$.data$Data, ~ every(p_$.format$Label, vec_in, names2(.x)))) {
-            abort(glue_fmt("`data` does not have all of the columns described in `format`."),
+            abort(glue_fmt_chr("`data` does not have all of the columns described in `format`."),
                 "rastrocat_parameter_invalid")
         }
     }
@@ -47,7 +47,7 @@
     if (!is_empty(p_$.remarks)) {
         if (any(nchar(names2(p_$.remarks)) >= p_$.standard_width() - 2L)) {
             which <- which(nchar(names2(p_$.remarks)) >= p_$.standard_width() - 2L)
-            abort(glue_fmt("The following `remarks` names are longer than single file line:\n" %&%
+            abort(glue_fmt_chr("The following `remarks` names are longer than single file line:\n" %&%
                 ">\t{paste(names2(p_$.remarks)[which], collapse = '; ')}"))
         }
     }
@@ -147,9 +147,9 @@
 
     output <- vec_init(character(), 10L)
 
-    auth_year_str <- glue_fmt("({get_short_author(p_$.authors)} {p_$.year:%4d})")
+    auth_year_str <- glue_fmt_chr("({get_short_author(p_$.authors)} {p_$.year:%4d})")
     title_len <- p_$.standard_width() - nchar(p_$.cat_id) - nchar(auth_year_str) - 2L
-    title <- glue_fmt_chr(glue_fmt("{{p_$.cat_id}} {{p_$.title:%{title_len}s}} {{auth_year_str}}"))
+    title <- glue_fmt_chr(glue_fmt_chr("{{p_$.cat_id}} {{p_$.title:%{title_len}s}} {{auth_year_str}}"))
 
     authors <- paste(p_$.authors, collapse = ", ")
 
@@ -162,13 +162,13 @@
     if (!is_na(p_$.references)) {
         assign_inc(output, id,
             paste(
-                glue_fmt("{str_dup(' ', p_$.description_offset())}<{p_$.references}>"),
+                glue_fmt_chr("{str_dup(' ', p_$.description_offset())}<{p_$.references}>"),
                 collapse = "\n"))
     }
     if (!is_na(p_$.bibcode_references)) {
         assign_inc(output, id,
             paste(
-                glue_fmt("{str_dup(' ', p_$.description_offset())}{p_$.bibcode_references}"),
+                glue_fmt_chr("{str_dup(' ', p_$.description_offset())}{p_$.bibcode_references}"),
                 collapse = "\n"))
     }
     assign_inc(output, id, p_$.generate_line("="))
@@ -176,14 +176,14 @@
     if (!is_na(p_$.keywords)) {
         assign_inc(output, id,
             p_$.wrap_join(
-                glue_fmt("Keywords: {paste(p_$.keywords, collapse = ' ; ')}"),
+                glue_fmt_chr("Keywords: {paste(p_$.keywords, collapse = ' ; ')}"),
                 wrap_at = ";"))
     }
 
     if (!is_na(p_$.adc_keywords)) {
         assign_inc(output, id,
             p_$.wrap_join(
-                glue_fmt("ADC_Keywords: {paste(p_$.adc_keywords, collapse = ' ; ')}"),
+                glue_fmt_chr("ADC_Keywords: {paste(p_$.adc_keywords, collapse = ' ; ')}"),
                 wrap_at = ";"))
     }
 
@@ -276,7 +276,7 @@
     date_offset <- p_$.standard_width() - 5L - 1L - auth_offset - 1L
     date <- format(Sys.time(), "%Y-%m-%d")
 
-    assign_inc(output, id, glue_fmt_chr(glue_fmt("(End) {{p_$.authors[1]:%{auth_offset}s}} {{date:%{date_offset}s}}")))
+    assign_inc(output, id, glue_fmt_chr(glue_fmt_chr("(End) {{p_$.authors[1]:%{auth_offset}s}} {{date:%{date_offset}s}}")))
 
 
     last_index <- vec_size(output)
@@ -336,7 +336,7 @@ utils::globalVariables(c("FileName", "Data", "Description", "Explanations", "Str
 
     tmp <- mutate(tmp, Explanations = map_chr(Explanations, func))
 
-    frmt <- glue_fmt(
+    frmt <- glue_fmt_chr(
         "{{FileName:%-{max_fname_sz}s}}" %&%
         "{col_gap}{{as.character(Lrecl):%{int_sz[1]}s}}" %&%
         "{col_gap}{{if_else(is.na(Records), '.', as.character(Records)):%{int_sz[2]}s}}" %&%
@@ -347,7 +347,7 @@ utils::globalVariables(c("FileName", "Data", "Description", "Explanations", "Str
         pull(Str) -> output
 
     list(
-        Header = glue_fmt_chr(glue_fmt(
+        Header = glue_fmt_chr(glue_fmt_chr(
             " {{'FileName':%-{max_fname_sz}s}}" %&%
             "{col_gap}{{'Lrecl':%{int_sz[1]}s}}" %&%
             "{col_gap}{{'Records':%{int_sz[1]}s}}" %&%
@@ -390,8 +390,8 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
             Bytes2 = Bytes + Size - 1L,
             Bytes = if_else(
                 Bytes == Bytes2,
-                glue_fmt_chr(glue_fmt("{{Bytes:%{bytes_size}d}}")),
-                glue_fmt_chr(glue_fmt("{{Bytes:%{len_size}d}}-{{Bytes2:%{len_size}d}}"))),
+                glue_fmt_chr(glue_fmt_chr("{{Bytes:%{bytes_size}d}}")),
+                glue_fmt_chr(glue_fmt_chr("{{Bytes:%{len_size}d}}-{{Bytes2:%{len_size}d}}"))),
             Bytes2 = NULL)
 
     col_gap <- str_dup(" ", p_$.column_gap())
@@ -404,7 +404,7 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
             pad_first_offset = expl_offset)) %>>%
         (~str_trim(.x, "left"))
 
-    row_format <- glue_fmt(
+    row_format <- glue_fmt_chr(
         "{col_gap}{{Bytes:%{bytes_size}s}}" %&%
         "{col_gap}{{Format:%-{format_size}s}}" %&%
         "{col_gap}{{Units:%-{units_size}s}}" %&%
@@ -417,7 +417,7 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
             Result = glue_fmt_chr(row_format)) %>%
         pull(Result) -> body
 
-    header <- glue_fmt_chr(glue_fmt(
+    header <- glue_fmt_chr(glue_fmt_chr(
         "{col_gap}{{'Bytes':%{bytes_size}s}}" %&%
         "{col_gap}{{'Format':%-{format_size}s}}" %&%
         "{col_gap}{{'Units':%-{units_size}s}}" %&%
