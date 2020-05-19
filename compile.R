@@ -9,6 +9,7 @@ if (interactive()) {
     library(tidyr)
     library(dplyr)
     library(tibble)
+    library(primitiveR)
     # Library imports for debug go here
     #
     #if (!exists("compile_src"))
