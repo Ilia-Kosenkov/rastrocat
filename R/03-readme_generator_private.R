@@ -370,7 +370,8 @@ utils::globalVariables(c("Units", "Size", "Bytes", "Bytes2", "Result"))
 
     bytes_size <- ifelse(any(frmt$Size > 1L), 2L * len_size + 1L, len_size)
 
-
+    print(names2(frmt))
+    print("Units" %vin% names2(frmt))
     if (!("Units" %vin% names2(frmt)))
         frmt <- mutate(frmt, Units = "---")
 
